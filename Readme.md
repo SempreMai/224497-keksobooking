@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Liubov Kudrina](https://up.htmlacademy.ru/javascript/14/user/224497).
-* Наставник: `Неизвестно`.
+* Наставник: [Konstantin Melnikov](https://htmlacademy.ru/profile/id443359).
 
 ---
 
