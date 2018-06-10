@@ -21,13 +21,22 @@ var OFFER_TITLE = [
   'Неуютное бунгало по колено в воде'
 ];
 
-var offerAddress = [];
-
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-var offerPrice = function () {
+var makeOfferAddress = function () {
+  var location = {};
+  var randomLocationX = clamp(Math.floor(Math.random() * 10), 300, 900);
+  var randomLocationY = clamp(Math.floor(Math.random() * 10), 130, 630);
+  location.x = randomLocationX;
+  location.y = randomLocationY;
+  return location.x + ', ' + location.y; // почему-то не изменяется значение
+};
+
+console.log(makeOfferAddress());
+
+var makeOfferPrice = function () {
   var randomOfferPrice = clamp(Math.floor(Math.random() * 10), 1000, 1000000);
   return randomOfferPrice;
 };
@@ -39,12 +48,12 @@ var OFFER_TYPE = [
   'bungalo'
 ];
 
-var offerRooms = function () {
+var makeOfferRooms = function () {
   var randomOfferRooms = clamp(Math.floor(Math.random() * 10), 1, 5);
   return randomOfferRooms;
 };
 
-var offerGuests = function () {
+var makeOfferGuests = function () {
   var randomOfferGuests = clamp(Math.floor(Math.random() * 10), 1, 100);
   return randomOfferGuests;
 };
@@ -76,7 +85,7 @@ var makeRandomOfferFeatures = function () {
   for (var i = 0; i <= randomOfferFeatureIndex; i++) {
     arr[i] += OFFER_FEATURES[i];
   }
-  return arr.toLocaleString(); //Почему-то распечатывает с ndefined перед каждым значением
+  return arr.toLocaleString(); //Почему-то распечатывает с undefined перед каждым значением
 };
 
 var OFFER_DESCRIPTION = '';
@@ -89,10 +98,14 @@ var OFFER_PHOTOS = [
 
 var makeRandomOfferPhotos = function () {
   var randomPhotoIndex = clamp(Math.floor(Math.random() * 10), 0, OFFER_PHOTOS.length - 1);
-
+  var arr = [];
+  for (var i = 0; i < OFFER_PHOTOS.length; i++) {
+    arr[i] += OFFER_PHOTOS[randomPhotoIndex];
+  }
+  return arr; //Почему-то распечатывает с undefined перед каждым значением
 };
 
-console.log(makeRandomOfferFeatures());
+console.log(makeRandomOfferPhotos());
 
 var findMap = document.querySelector('.map');
 
