@@ -128,14 +128,37 @@ var findMap = document.querySelector('.map');
 
 findMap.classList.remove('.map--faded');
 
-var similarListElement = findMap.querySelector('.map__card');
+var similarListElement = document.querySelector('.map__card');
 
-var similarItemTemplate = document.querySelector('.map__pin')
-  .content;
+var similarItemTemplate = document.querySelector('.map__pin');
 
 var createPin = function () {
   var pinElement = similarItemTemplate.cloneNode(true);
   pinElement.querySelector(['style']).textContent = makeOfferAddress();
   //pinElement.querySelector(['src']).textContent =
+  return pinElement;
 };
+
+var createPinFragment = function () {
+  var pinFragment = document.createDocumentFragment();
+  for (var i = 0; i < OFFERS_NUMBER; i++) {
+    pinFragment.appendChild(createPin());
+  }
+};
+
+var createCard = function () {
+  var cardElement = similarListElement.cloneNode(true);
+  return cardElement;
+};
+
+var createCardFragment = function () {
+  var cardFragment = document.createDocumentFragment();
+  for (var i = 0; i < OFFERS_NUMBER; i++) {
+    cardFragment.appendChild(createCard());
+  }
+};
+
+findMap.appendChild(createCardFragment());
+findMap.appendChild(createPinFragment());
+
 
