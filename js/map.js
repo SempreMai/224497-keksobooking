@@ -1,14 +1,35 @@
 'use strict';
+var PIN_WIDTH = 40;
+var PIN_HEIGHT = 40;
+var OFFERS_NUMBER = 8;
 
-var avatarsList = [];
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
 
-var makeAvatarsImgArrow = function (arr) {
-  for (var i = 1; i <= 8; i++) {
-    var current = i;
-    arr[i] += 'img/avatars/user0' + current + '.png';
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+var author = {
+  image: [
+    'img/avatars/user01.png',
+    'img/avatars/user02.png',
+    'img/avatars/user03.png',
+    'img/avatars/user04.png',
+    'img/avatars/user05.png',
+    'img/avatars/user06.png',
+    'img/avatars/user07.png',
+    'img/avatars/user08.png'
+  ],
+  avatar: function () {
+    this.image.forEach(function (element) {
+      return element;
+    });
   }
-  return arr;
 };
+
+console.log(author.avatar());
 
 var OFFER_TITLE = [
   'Большая уютная квартира',
@@ -21,25 +42,23 @@ var OFFER_TITLE = [
   'Неуютное бунгало по колено в воде'
 ];
 
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
-
 var makeOfferAddress = function () {
   var location = {};
-  var randomLocationX = clamp(Math.floor(Math.random() * 10), 300, 900);
-  var randomLocationY = clamp(Math.floor(Math.random() * 10), 130, 630);
-  location.x = randomLocationX;
-  location.y = randomLocationY;
-  return location.x + ', ' + location.y; // почему-то не изменяется значение
+  var randomLocationX = getRandomInt(300, 900);
+  var randomLocationY = getRandomInt(130, 630);
+  location.x = randomLocationX - PIN_WIDTH / 2;
+  location.y = randomLocationY - PIN_HEIGHT;
+  return 'left: ' + location.x + 'px, top: ' + location.y + 'px;';
 };
 
 console.log(makeOfferAddress());
 
 var makeOfferPrice = function () {
-  var randomOfferPrice = clamp(Math.floor(Math.random() * 10), 1000, 1000000);
+  var randomOfferPrice = getRandomInt(1000, 1000000);
   return randomOfferPrice;
 };
+
+console.log(makeOfferPrice());
 
 var OFFER_TYPE = [
   'palace',
@@ -82,11 +101,14 @@ var OFFER_FEATURES = [
 var makeRandomOfferFeatures = function () {
   var randomFeatureIndex = clamp(Math.floor(Math.random() * 10), 0, OFFER_FEATURES.length - 1);
   var arr = [];
-  for (var i = 0; i <= randomOfferFeatureIndex; i++) {
-    arr[i] += OFFER_FEATURES[i];
+  for (var i = 0; i <= randomFeatureIndex; i++) {
+    arr[i] = OFFER_FEATURES[i];
+
   }
-  return arr.toLocaleString(); //Почему-то распечатывает с undefined перед каждым значением
+  return arr.toString();
 };
+
+console.log(makeRandomOfferFeatures());
 
 var OFFER_DESCRIPTION = '';
 
@@ -96,17 +118,24 @@ var OFFER_PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
 
-var makeRandomOfferPhotos = function () {
-  var randomPhotoIndex = clamp(Math.floor(Math.random() * 10), 0, OFFER_PHOTOS.length - 1);
-  var arr = [];
-  for (var i = 0; i < OFFER_PHOTOS.length; i++) {
-    arr[i] += OFFER_PHOTOS[randomPhotoIndex];
-  }
-  return arr; //Почему-то распечатывает с undefined перед каждым значением
+var suffleOfferPhotos = function (arr) {
+  return arr.sort(function() { return 0.5 - Math.random() });
 };
 
-console.log(makeRandomOfferPhotos());
+console.log(suffleOfferPhotos(OFFER_PHOTOS));
 
 var findMap = document.querySelector('.map');
 
 findMap.classList.remove('.map--faded');
+
+var similarListElement = findMap.querySelector('.map__card');
+
+var similarItemTemplate = document.querySelector('.map__pin')
+  .content;
+
+var createPin = function () {
+  var pinElement = similarItemTemplate.cloneNode(true);
+  pinElement.querySelector(['style']).textContent = makeOfferAddress();
+  //pinElement.querySelector(['src']).textContent =
+};
+
