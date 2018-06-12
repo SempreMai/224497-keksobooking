@@ -57,7 +57,7 @@ function getRandomInt(min, max) {
 }
 
 var author = {
-  image: [
+  avatar: [
     'img/avatars/user01.png',
     'img/avatars/user02.png',
     'img/avatars/user03.png',
@@ -66,15 +66,8 @@ var author = {
     'img/avatars/user06.png',
     'img/avatars/user07.png',
     'img/avatars/user08.png'
-  ],
-  avatar: function () {
-    this.image.forEach(function (element) {
-      return element;
-    });
-  }
+  ]
 };
-
-console.log(author.avatar());
 
 var makeOfferAddress = function () {
   var location = {};
@@ -90,8 +83,10 @@ var makeOfferPrice = function () {
   return `${randomOfferPrice}₽/ночь`;
 };
 
-console.log();
-
+var makeOfferType = function () {
+  var randomTypeIndex = clamp(Math.floor(Math.random() * 10), 0, OFFER_TYPE.length - 1);
+  return OFFER_TYPE[randomTypeIndex];
+};
 
 var makeOfferRooms = function () {
   var randomOfferRooms = clamp(Math.floor(Math.random() * 10), 1, 5);
@@ -146,19 +141,12 @@ var similarElementTemplate = document.querySelector('template')
 var similarOfferCard = similarElementTemplate.querySelector('.map__card');
 
 var similarOfferPin = similarElementTemplate.querySelector('.map__pin');
-//map.js:152 Uncaught TypeError: Cannot read property 'cloneNode' of undefined
-//     at createOfferPin (map.js:152)
-//     at createPinFragment (map.js:162)
-//     at map.js:197
-// createOfferPin @ map.js:152
-// createPinFragment @ map.js:162
-// (anonymous) @ map.js:197
 
 var createOfferPin = function () {
   var pinElement = similarOfferPin.cloneNode(true);
   pinElement.querySelector.style = makeOfferAddress();
-  pinElement.querySelector('img').src = author.avatar(); // Сделать неповторяющимися
-  pinElement.querySelector('alt').textContent = offer.title; // Сделать неповторяющимися
+  pinElement.querySelector('img').src = author.avatar[1]; // Сделать неповторяющимися
+  pinElement.querySelector('img').alt = OFFER_TITLE[1]; // Сделать неповторяющимися
   return pinElement;
 };
 
@@ -172,22 +160,16 @@ var createPinFragment = function () {
 
 var createOfferCard = function () {
   var cardElement = similarOfferCard.cloneNode(true);
-  //cardElement.querySelector('.popup__title').textContent = offer.title; // Сделать неповторяющимися
+  cardElement.querySelector('.popup__title').textContent = OFFER_TITLE[1]; // Сделать неповторяющимися
   cardElement.querySelector('.popup__text--address').textContent = makeOfferAddress();
   cardElement.querySelector('.popup__text--price').textContent = makeOfferPrice();
+  cardElement.querySelector('.popup__type').textContent = makeOfferType();
   cardElement.querySelector('.popup__text--capacity').textContent = combineOfferRoomsAndGuests();
   cardElement.querySelector('.popup__text--time').textContent = makeOfferTiming();
   cardElement.querySelector('.popup__features').textContent = makeRandomOfferFeatures(); // Переделать под список
   cardElement.querySelector('.popup__description').textContent = OFFER_DESCRIPTION;
-//  cardElement.querySelector('.popup__photos img').src = suffleOfferPhotos();
-//  cardElement.querySelector('popup__avatar img').src = author.avatar();
-  //map.js:177 Uncaught TypeError: Cannot set property 'src' of null
-  //     at createOfferCard (map.js:177)
-  //     at createCardFragment (map.js:184)
-  //     at map.js:189
-  // createOfferCard @ map.js:177
-  // createCardFragment @ map.js:184
-  // (anonymous) @ map.js:189
+  cardElement.querySelector('.popup__photos > img').src = OFFER_PHOTOS[1];
+  cardElement.querySelector('.popup__avatar').src = author.avatar[1];
   return cardElement;
 };
 
