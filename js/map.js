@@ -2,6 +2,51 @@
 var PIN_WIDTH = 40;
 var PIN_HEIGHT = 40;
 var OFFERS_NUMBER = 8;
+var OFFER_DESCRIPTION = '';
+var OFFER_TITLE = [
+  'Большая уютная квартира',
+  'Маленькая неуютная квартира',
+  'Огромный прекрасный дворец',
+  'Маленький ужасный дворец',
+  'Красивый гостевой домик',
+  'Некрасивый негостеприимный домик',
+  'Уютное бунгало далеко от моря',
+  'Неуютное бунгало по колено в воде'
+];
+
+var OFFER_TYPE = [
+  'palace',
+  'flat',
+  'house',
+  'bungalo'
+];
+
+var OFFER_CHECKIN = [
+  '12:00',
+  '13:00',
+  '14:00'
+];
+
+var OFFER_CHECKOUT = [
+  '12:00',
+  '13:00',
+  '14:00'
+];
+
+var OFFER_FEATURES = [
+  'wifi',
+  'dishwasher',
+  'parking',
+  'washer',
+  'elevator',
+  'conditioner'
+];
+
+var OFFER_PHOTOS = [
+  'http://o0.github.io/assets/images/tokyo/hotel1.jpg',
+  'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
+  'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
+];
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -31,17 +76,6 @@ var author = {
 
 console.log(author.avatar());
 
-var OFFER_TITLE = [
-  'Большая уютная квартира',
-  'Маленькая неуютная квартира',
-  'Огромный прекрасный дворец',
-  'Маленький ужасный дворец',
-  'Красивый гостевой домик',
-  'Некрасивый негостеприимный домик',
-  'Уютное бунгало далеко от моря',
-  'Неуютное бунгало по колено в воде'
-];
-
 var makeOfferAddress = function () {
   var location = {};
   var randomLocationX = getRandomInt(300, 900);
@@ -51,21 +85,13 @@ var makeOfferAddress = function () {
   return 'left: ' + location.x + 'px, top: ' + location.y + 'px;';
 };
 
-console.log(makeOfferAddress());
-
 var makeOfferPrice = function () {
   var randomOfferPrice = getRandomInt(1000, 1000000);
-  return randomOfferPrice;
+  return `${randomOfferPrice}₽/ночь`;
 };
 
-console.log(makeOfferPrice());
+console.log();
 
-var OFFER_TYPE = [
-  'palace',
-  'flat',
-  'house',
-  'bungalo'
-];
 
 var makeOfferRooms = function () {
   var randomOfferRooms = clamp(Math.floor(Math.random() * 10), 1, 5);
@@ -77,26 +103,17 @@ var makeOfferGuests = function () {
   return randomOfferGuests;
 };
 
-var OFFER_CHECKIN = [
-  '12:00',
-  '13:00',
-  '14:00'
-];
+var combineOfferRoomsAndGuests = function () {
+  var rooms = makeOfferRooms();
+  var guests = makeOfferGuests();
+  return `${rooms} комнаты для ${guests} гостей.`
+};
 
-var OFFER_CHECKOUT = [
-  '12:00',
-  '13:00',
-  '14:00'
-];
-
-var OFFER_FEATURES = [
-  'wifi',
-  'dishwasher',
-  'parking',
-  'washer',
-  'elevator',
-  'conditioner'
-];
+var makeOfferTiming = function () {
+  var randomCheckinIndex = clamp(Math.floor(Math.random() * 10), 0, OFFER_CHECKIN.length - 1);
+  var randomCheckoutIndex = clamp(Math.floor(Math.random() * 10), 0, OFFER_CHECKOUT.length - 1);
+  return `Заезд после ${OFFER_CHECKIN[randomCheckinIndex]}, выезд до ${OFFER_CHECKOUT[randomCheckoutIndex]}.`
+};
 
 var makeRandomOfferFeatures = function () {
   var randomFeatureIndex = clamp(Math.floor(Math.random() * 10), 0, OFFER_FEATURES.length - 1);
@@ -110,55 +127,79 @@ var makeRandomOfferFeatures = function () {
 
 console.log(makeRandomOfferFeatures());
 
-var OFFER_DESCRIPTION = '';
 
-var OFFER_PHOTOS = [
-  'http://o0.github.io/assets/images/tokyo/hotel1.jpg',
-  'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
-  'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
-];
+//var suffleOfferPhotos = function (arr) {
+//  return arr.sort(function() { return 0.5 - Math.random() }); //Uncaught TypeError: Cannot read property 'sort' of undefined
+//};
 
-var suffleOfferPhotos = function (arr) {
-  return arr.sort(function() { return 0.5 - Math.random() });
-};
-
-console.log(suffleOfferPhotos(OFFER_PHOTOS));
+//console.log(suffleOfferPhotos(OFFER_PHOTOS));
 
 var findMap = document.querySelector('.map');
 
 findMap.classList.remove('.map--faded');
 
-var similarListElement = document.querySelector('.map__card');
+var similarElementPositon = document.querySelector('.map__pins');
 
-var similarItemTemplate = document.querySelector('.map__pin');
+var similarElementTemplate = document.querySelector('template')
+  .content;
 
-var createPin = function () {
-  var pinElement = similarItemTemplate.cloneNode(true);
-  pinElement.querySelector(['style']).textContent = makeOfferAddress();
-  //pinElement.querySelector(['src']).textContent =
+var similarOfferCard = similarElementTemplate.querySelector('.map__card');
+
+var similarOfferPin = similarElementTemplate.querySelector('.map__pin');
+//map.js:152 Uncaught TypeError: Cannot read property 'cloneNode' of undefined
+//     at createOfferPin (map.js:152)
+//     at createPinFragment (map.js:162)
+//     at map.js:197
+// createOfferPin @ map.js:152
+// createPinFragment @ map.js:162
+// (anonymous) @ map.js:197
+
+var createOfferPin = function () {
+  var pinElement = similarOfferPin.cloneNode(true);
+  pinElement.querySelector.style = makeOfferAddress();
+  pinElement.querySelector('img').src = author.avatar(); // Сделать неповторяющимися
+  pinElement.querySelector('alt').textContent = offer.title; // Сделать неповторяющимися
   return pinElement;
 };
 
 var createPinFragment = function () {
   var pinFragment = document.createDocumentFragment();
   for (var i = 0; i < OFFERS_NUMBER; i++) {
-    pinFragment.appendChild(createPin());
+    pinFragment.appendChild(createOfferPin());
   }
+  return pinFragment;
 };
 
-var createCard = function () {
-  var cardElement = similarListElement.cloneNode(true);
+var createOfferCard = function () {
+  var cardElement = similarOfferCard.cloneNode(true);
+  //cardElement.querySelector('.popup__title').textContent = offer.title; // Сделать неповторяющимися
+  cardElement.querySelector('.popup__text--address').textContent = makeOfferAddress();
+  cardElement.querySelector('.popup__text--price').textContent = makeOfferPrice();
+  cardElement.querySelector('.popup__text--capacity').textContent = combineOfferRoomsAndGuests();
+  cardElement.querySelector('.popup__text--time').textContent = makeOfferTiming();
+  cardElement.querySelector('.popup__features').textContent = makeRandomOfferFeatures(); // Переделать под список
+  cardElement.querySelector('.popup__description').textContent = OFFER_DESCRIPTION;
+//  cardElement.querySelector('.popup__photos img').src = suffleOfferPhotos();
+//  cardElement.querySelector('popup__avatar img').src = author.avatar();
+  //map.js:177 Uncaught TypeError: Cannot set property 'src' of null
+  //     at createOfferCard (map.js:177)
+  //     at createCardFragment (map.js:184)
+  //     at map.js:189
+  // createOfferCard @ map.js:177
+  // createCardFragment @ map.js:184
+  // (anonymous) @ map.js:189
   return cardElement;
 };
 
 var createCardFragment = function () {
   var cardFragment = document.createDocumentFragment();
   for (var i = 0; i < OFFERS_NUMBER; i++) {
-    cardFragment.appendChild(createCard());
+    cardFragment.appendChild(createOfferCard());
   }
+  return cardFragment;
 };
 
-findMap.appendChild(createCardFragment());
-findMap.appendChild(createPinFragment());
+similarElementPositon.appendChild(createCardFragment());
+similarElementPositon.appendChild(createPinFragment());
 
 
