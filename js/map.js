@@ -122,18 +122,19 @@ var makeRandomOfferFeatures = function () {
 
 console.log(makeRandomOfferFeatures());
 
+var mixedOfferPhotos = function () {
+  var mixPhotos = OFFER_PHOTOS.sort(function() { return 0.5 - Math.random() });
+  return mixPhotos;
+}
 
-//var suffleOfferPhotos = function (arr) {
-//  return arr.sort(function() { return 0.5 - Math.random() }); //Uncaught TypeError: Cannot read property 'sort' of undefined
-//};
 
-//console.log(suffleOfferPhotos(OFFER_PHOTOS));
+console.log(mixedOfferPhotos());
 
 var findMap = document.querySelector('.map');
 
 findMap.classList.remove('.map--faded');
 
-var similarElementPositon = document.querySelector('.map__pins');
+var similarElementPosition = document.querySelector('.map__pins');
 
 var similarElementTemplate = document.querySelector('template')
   .content;
@@ -168,8 +169,8 @@ var createOfferCard = function () {
   cardElement.querySelector('.popup__text--time').textContent = makeOfferTiming();
   cardElement.querySelector('.popup__features').textContent = makeRandomOfferFeatures(); // Переделать под список
   cardElement.querySelector('.popup__description').textContent = OFFER_DESCRIPTION;
-  cardElement.querySelector('.popup__photos > img').src = OFFER_PHOTOS[1];
-  cardElement.querySelector('.popup__avatar').src = author.avatar[1];
+  cardElement.querySelector('.popup__photos > img').src = mixedOfferPhotos(); // Временное решение
+  cardElement.querySelector('.popup__avatar').src = author.avatar[1]; // Сделать неповторяющимися
   return cardElement;
 };
 
@@ -181,7 +182,7 @@ var createCardFragment = function () {
   return cardFragment;
 };
 
-similarElementPositon.appendChild(createCardFragment());
-similarElementPositon.appendChild(createPinFragment());
+similarElementPosition.appendChild(createCardFragment());
+similarElementPosition.appendChild(createPinFragment());
 
 
