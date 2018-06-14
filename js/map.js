@@ -147,7 +147,9 @@ var createOfferFeaturesList = function () {
 };
 
 var mixedOfferPhotos = function () {
-  return OFFER_PHOTOS.sort(function() { return 0.5 - Math.random() });
+  return OFFER_PHOTOS.sort(function () {
+    return 0.5 - Math.random();
+  });
 };
 
 var addOfferPhotos = function () {
