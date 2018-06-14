@@ -3,7 +3,7 @@
 var PIN_WIDTH = 40;
 var PIN_HEIGHT = 40;
 
-var OFFERS_NUMBER = 8;
+var OFFERS_QUANTITY = 8;
 
 var OFFER_DESCRIPTION = '';
 
@@ -62,6 +62,10 @@ var MAXIMUM_OFFER_PRICE = 1000000;
 
 var MAXIMUM_GUESTS_QUANTITY = 100;
 var MAXIMUM_ROOMS_QUANTITY = 5;
+
+var PHOTO_WIDTH = 45;
+var PHOTO_HEIGHT = 40;
+var PHOTO_ALT = 'Фотография жилья';
 
 var findMap = document.querySelector('.map');
 
@@ -127,11 +131,11 @@ var createRandomOfferCheckOut = function () {
 
 var createRandomOfferFeatures = function () {
   var randomFeatureIndex = clamp(Math.floor(Math.random() * 10), 0, OFFER_FEATURES.length - 1);
-  var ranomFeaturesArray = [];
+  var randomFeaturesArray = [];
   for (var i = 0; i <= randomFeatureIndex; i++) {
-    ranomFeaturesArray.push(OFFER_FEATURES[i]);
+    randomFeaturesArray.push(OFFER_FEATURES[i]);
   }
-  return ranomFeaturesArray;
+  return randomFeaturesArray;
 };
 
 var createOfferFeaturesList = function () {
@@ -146,33 +150,10 @@ var createOfferFeaturesList = function () {
   return featureFragment;
 };
 
-var mixedOfferPhotos = function () {
-  return OFFER_PHOTOS.sort(function () {
-    return 0.5 - Math.random();
-  });
-};
-
-var addOfferPhotos = function () {
-  var randomPhotosArray = mixedOfferPhotos();
-  var photoFragment = document.createDocumentFragment();
-  for (var i = 0; i < randomPhotosArray.length; i++) {
-    var newPhoto = document.createElement('img');
-    newPhoto.src = randomPhotosArray[i];
-    photoFragment.appendChild(newPhoto);
-  }
-  return photoFragment;
-};
-
-var removeEmptyOfferPhoto = function () { // Не знаю, куда вставить эту функцию!!!((
-  var offerPhotosContainer = similarOfferCard.querySelector('.popup__photos');
-  var offerPhoto = offerPhotosContainer.querySelectorAll('img');
-  offerPhotosContainer.removeChild(offerPhoto[0]);
-};
-
 var generateOfferData = function (offerIndex) {
   return {
     author: {
-      avatar: 'img/avatars/user0' + offerIndex + '.png'
+      avatar: 'img/avatars/user0' + (offerIndex + 1) + '.png'
     },
     offer: {
       title: OFFER_TITLE[offerIndex],
@@ -185,7 +166,7 @@ var generateOfferData = function (offerIndex) {
       checkout: createRandomOfferCheckOut(),
       features: createOfferFeaturesList(),
       description: OFFER_DESCRIPTION,
-      photos: addOfferPhotos()
+      photos: OFFER_PHOTOS
     },
     location: {
       x: createRandomOfferLocationX(),
@@ -196,7 +177,7 @@ var generateOfferData = function (offerIndex) {
 
 var generateOffersData = function () {
   var offersData = [];
-  for (var i = 1; i <= OFFERS_NUMBER; i++) {
+  for (var i = 0; i <= OFFERS_QUANTITY - 1; i++) {
     offersData.push(generateOfferData(i));
   }
   return offersData;
@@ -221,9 +202,19 @@ var createPinFragment = function () {
   return pinFragment;
 };
 
+var createPhotoElement = function (path) {
+  var photoElement = document.createElement('img');
+  photoElement.classList.add('popup__photo');
+  photoElement.width = PHOTO_WIDTH;
+  photoElement.height = PHOTO_HEIGHT;
+  photoElement.alt = PHOTO_ALT;
+  photoElement.src = path;
+  return photoElement;
+};
+
 var createOfferCard = function (offerData) {
   var cardElement = similarOfferCard.cloneNode(true);
-  cardElement.querySelector('.popup__title').textContent = offerData.offer.title; // Почему-то не отображается!
+  cardElement.querySelector('.popup__title').textContent = offerData.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = offerData.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = offerData.offer.price + '₽/ночь';
   cardElement.querySelector('.popup__type').textContent = offerData.offer.type;
@@ -231,8 +222,12 @@ var createOfferCard = function (offerData) {
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + offerData.offer.checkin + ', выезд до ' + offerData.offer.checkout + '.';
   cardElement.querySelector('.popup__features').appendChild(offerData.offer.features);
   cardElement.querySelector('.popup__description').textContent = offerData.offer.description;
-  cardElement.querySelector('.popup__photos').appendChild(offerData.offer.photos); // Не знаю, где вызвать removeEmptyOfferPhoto
   cardElement.querySelector('.popup__avatar').src = offerData.author.avatar;
+
+  offerData.offer.photos.forEach(function (photoPath) {
+    cardElement.querySelector('.popup__photos').appendChild(createPhotoElement(photoPath));
+  });
+
   return cardElement;
 };
 
