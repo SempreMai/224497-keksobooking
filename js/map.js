@@ -20,12 +20,12 @@ var OFFER_TITLES = [
   'Неуютное бунгало по колено в воде'
 ];
 
-var OFFER_TYPES = [
-  'palace',
-  'flat',
-  'house',
-  'bungalo'
-];
+var OFFER_TYPES = {
+  palace: 'Дворец',
+  flat: 'Квартира',
+  house: 'Дом',
+  bungalo: 'Бунгало',
+};
 
 var OFFER_CHECK_HOURS = [
   '12:00',
@@ -128,7 +128,7 @@ var generateOfferData = function (offerIndex) {
       title: OFFER_TITLES[offerIndex],
       address: locationX + ', ' + locationY,
       price: getRandomInt(offerSettings.price.MIN, offerSettings.price.MIN),
-      type: getRandomArrayItem(OFFER_TYPES),
+      type: getRandomArrayItem(Object.keys(OFFER_TYPES)),
       rooms: getRandomInt(offerSettings.roomsNumber.MIN, offerSettings.roomsNumber.MAX),
       guests: getRandomInt(offerSettings.guestsNumber.MIN, offerSettings.guestsNumber.MIN),
       checkin: getRandomArrayItem(OFFER_CHECK_HOURS),
@@ -186,12 +186,19 @@ var createFeaturesElement = function (feature) {
   return featureElement;
 };
 
+var getPropertyName = function (key, array) {
+  for (key in array) {
+    var name = array[key];
+  }
+  return name;
+};
+
 var createCardElement = function (advert) {
   var cardElement = similarOfferCard.cloneNode(true);
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
-  cardElement.querySelector('.popup__type').textContent = advert.offer.type;
+  cardElement.querySelector('.popup__type').textContent = getPropertyName(advert.offer.type, OFFER_TYPES);
   cardElement.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей.';
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout + '.';
   cardElement.querySelector('.popup__description').textContent = advert.offer.description;
