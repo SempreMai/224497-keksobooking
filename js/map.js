@@ -188,7 +188,9 @@ var createFeaturesElement = function (feature) {
 
 var getPropertyName = function (key, array) {
   for (key in array) {
-    var name = array[key];
+    if (array.hasOwnProperty(key)) {
+      var name = array[key];
+    }
   }
   return name;
 };
