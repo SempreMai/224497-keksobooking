@@ -78,15 +78,15 @@ var PHOTO_WIDTH = 45;
 var PHOTO_HEIGHT = 40;
 var PHOTO_ALT = 'Фотография жилья';
 
-var MapElement = document.querySelector('.map');
+var mapElement = document.querySelector('.map');
 
-var mapPinsContainer = document.querySelector('.map__pins');
+var mapPinsElement = document.querySelector('.map__pins');
 
-var similarElementTemplate = document.querySelector('template').content;
+var offerTemplate = document.querySelector('template').content;
 
-var similarOfferCard = similarElementTemplate.querySelector('.map__card');
+var offerCardElement = offerTemplate.querySelector('.map__card');
 
-var similarOfferPin = similarElementTemplate.querySelector('.map__pin');
+var offerPinElement = offerTemplate.querySelector('.map__pin');
 
 var removeChildren = function (element) {
   while (element.firstChild) {
@@ -153,7 +153,7 @@ var generateAdverts = function () {
 };
 
 var createOfferPin = function (offerData) {
-  var pinElement = similarOfferPin.cloneNode(true);
+  var pinElement = offerPinElement.cloneNode(true);
   pinElement.style.left = (offerData.location.x - PIN_WIDTH / 2) + 'px';
   pinElement.style.top = (offerData.location.y - PIN_HEIGHT) + 'px';
   pinElement.querySelector('img').src = offerData.author.avatar;
@@ -196,7 +196,7 @@ var getPropertyName = function (key, array) {
 };
 
 var createCardElement = function (advert) {
-  var cardElement = similarOfferCard.cloneNode(true);
+  var cardElement = offerCardElement.cloneNode(true);
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
@@ -225,9 +225,9 @@ var createCardElement = function (advert) {
 
 var initMap = function () {
   var adverts = generateAdverts();
-  mapPinsContainer.appendChild(createCardElement(adverts[0]));
-  mapPinsContainer.appendChild(createPinFragment(adverts));
-  MapElement.classList.remove('.map--faded');
+  mapPinsElement.appendChild(createCardElement(adverts[0]));
+  mapPinsElement.appendChild(createPinFragment(adverts));
+  mapElement.classList.remove('.map--faded');
 };
 
 initMap();
