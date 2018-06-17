@@ -20,13 +20,6 @@ var OFFER_TITLES = [
   'Неуютное бунгало по колено в воде'
 ];
 
-var OFFER_TYPES = {
-  palace: 'Дворец',
-  flat: 'Квартира',
-  house: 'Дом',
-  bungalo: 'Бунгало',
-};
-
 var OFFER_CHECK_HOURS = [
   '12:00',
   '13:00',
@@ -60,6 +53,12 @@ var locationSettings = {
 };
 
 var offerSettings = {
+  type: {
+    palace: 'Дворец',
+    flat: 'Квартира',
+    house: 'Дом',
+    bungalo: 'Бунгало',
+  },
   price: {
     MIN: 1000,
     MAX: 1000000,
@@ -78,15 +77,28 @@ var PHOTO_WIDTH = 45;
 var PHOTO_HEIGHT = 40;
 var PHOTO_ALT = 'Фотография жилья';
 
+var initialLocation = function () {
+  return (locationSettings.x.MAX / 2 - (PIN_WIDTH / 2)).toString() + ', ' + ((locationSettings.y.MAX / 2) - PHOTO_HEIGHT).toString();
+};
+
 var mapElement = document.querySelector('.map');
 
 var mapPinsElement = document.querySelector('.map__pins');
+
+var mapPinMainElement = mapPinsElement.querySelector('.map__pin--main'); //
+
+var offerFormElement = document.querySelector('.ad-form');
+
+var offerFormFieldsets = offerFormElement.querySelectorAll('fieldset');
+
+var offerFormInputAddress = offerFormElement.querySelector('#address');
 
 var offerTemplate = document.querySelector('template').content;
 
 var offerCardElement = offerTemplate.querySelector('.map__card');
 
 var offerPinElement = offerTemplate.querySelector('.map__pin');
+
 
 var removeChildren = function (element) {
   while (element.firstChild) {
@@ -128,7 +140,7 @@ var generateOfferData = function (offerIndex) {
       title: OFFER_TITLES[offerIndex],
       address: locationX + ', ' + locationY,
       price: getRandomInt(offerSettings.price.MIN, offerSettings.price.MIN),
-      type: getRandomArrayItem(Object.keys(OFFER_TYPES)),
+      type: getRandomArrayItem(Object.keys(offerSettings.type)),
       rooms: getRandomInt(offerSettings.roomsNumber.MIN, offerSettings.roomsNumber.MAX),
       guests: getRandomInt(offerSettings.guestsNumber.MIN, offerSettings.guestsNumber.MIN),
       checkin: getRandomArrayItem(OFFER_CHECK_HOURS),
@@ -200,7 +212,7 @@ var createCardElement = function (advert) {
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
-  cardElement.querySelector('.popup__type').textContent = getPropertyName(advert.offer.type, OFFER_TYPES);
+  cardElement.querySelector('.popup__type').textContent = getPropertyName(advert.offer.type, offerSettings.type); // осталась проблема выбора варианта
   cardElement.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей.';
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout + '.';
   cardElement.querySelector('.popup__description').textContent = advert.offer.description;
@@ -228,7 +240,24 @@ var initMap = function () {
   mapPinsElement.appendChild(createCardElement(adverts[0]));
   mapPinsElement.appendChild(createPinFragment(adverts));
   mapElement.classList.remove('.map--faded');
+  offerFormElement.classList.remove('ad-form--disabled');
+  Array.from(offerFormFieldsets).forEach(function (element) { // Не уверена, что работает
+    element.removeAttribute('disabled');
+  });
+  offerFormInputAddress.setAttribute('value', initialLocation());
 };
 
-initMap();
+var stopMap = function () {
+  mapElement.classList.add('.map--faded');
+  offerFormElement.classList.add('ad-form--disabled');
+  Array.from(offerFormFieldsets).forEach(function (element) { // Не уверена, что работает
+    element.setAttribute('disabled', 'disabled');
+  });
+};
 
+mapPinMainElement.addEventListener('mouseup', initMap);
+
+
+var disactivateSitePage = function (evt) {
+  return evt;
+};
