@@ -255,6 +255,11 @@ var stopMap = function () {
   });
 };
 
+var pinFragmentElement = createPinFragment();
+var pinFragmentElements = pinFragmentElement.querySelectorAll('map__pin'); // Не понимаю, как найти созданные пины
+
+console.log(pinFragmentElements);
+
 mapPinMainElement.addEventListener('mouseup', initMap);
 
 
