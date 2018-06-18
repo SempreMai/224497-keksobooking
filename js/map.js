@@ -238,7 +238,6 @@ var createCardElement = function (advert) {
 
 var initMap = function () {
   var adverts = generateAdverts();
-  mapPinsElement.appendChild(createCardElement(adverts[0]));
   mapPinsElement.appendChild(createPinFragment(adverts));
   mapElement.classList.remove('.map--faded');
   offerFormElement.classList.remove('ad-form--disabled');
@@ -254,19 +253,16 @@ mapPinMainElement.addEventListener('mouseup', function () {
   initMap();
   if (mapPinsElement.hasChildNodes()) {
     var offerPinElements = mapPinsElement.querySelectorAll('.map__pin');
-
-    var offerCardElements = mapPinsElement.querySelectorAll('.map__card');
-
-    Array.from(offerCardElements).forEach(function (element) { // Не находит элементы
-      element.classList.add('hidden');
-    });
-
-    var openCardElement = function () {
-      offerCardElement.classList.remove('hidden');
-    };
-
-    Array.from(offerPinElements).forEach(function (element) { // Не находит элементы
-      element.addEventListener('click', openCardElement);
+    Array.from(offerPinElements).forEach(function (element) {
+      element.addEventListener('click', function (evt) {
+        var target = evt.target;
+        var adverts = generateAdverts();
+        for (var i = 0; i < target.length; i++) {
+          if (target === target[i]) {
+            mapPinsElement.appendChild(createCardElement(adverts[i]));
+          }
+        }
+      });
     });
   }
 });
@@ -274,7 +270,7 @@ mapPinMainElement.addEventListener('mouseup', function () {
 var stopMap = function () {
   mapElement.classList.add('.map--faded');
   offerFormElement.classList.add('ad-form--disabled');
-  Array.from(offerFormFieldsets).forEach(function (element) { // Не уверена, что работает
+  Array.from(offerFormFieldsets).forEach(function (element) {
     element.setAttribute('disabled', 'disabled');
   });
 };
