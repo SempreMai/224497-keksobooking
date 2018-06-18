@@ -101,11 +101,6 @@ var offerCardElement = offerTemplate.querySelector('.map__card');
 
 var offerPinElement = offerTemplate.querySelector('.map__pin');
 
-var offerPinElements = mapPinsElement.querySelectorAll('.map__pin');
-
-var offerCardElements = mapPinsElement.querySelectorAll('.map__card');
-
-
 var removeChildren = function (element) {
   while (element.firstChild) {
     element.removeChild(element.firstChild);
@@ -252,22 +247,28 @@ var initMap = function () {
   Array.from(offerFormFieldsets).forEach(function (element) { // Не уверена, что работает
     element.removeAttribute('disabled');
   });
-
-  Array.from(offerCardElements).forEach(function (element) { // Не находит элементы
-    element.classList.add('hidden');
-  });
 };
 
-initMap();
 
-mapPinMainElement.addEventListener('mouseup', initMap);
+mapPinMainElement.addEventListener('mouseup', function () {
+  initMap();
+  if (mapPinsElement.hasChildNodes()) {
+    var offerPinElements = mapPinsElement.querySelectorAll('.map__pin');
 
-var openCardElement = function () {
-  offerCardElement.classList.remove('hidden');
-};
+    var offerCardElements = mapPinsElement.querySelectorAll('.map__card');
 
-Array.from(offerPinElements).forEach(function (element) { // Не находит элементы
-  element.addEventListener('click', openCardElement);
+    Array.from(offerCardElements).forEach(function (element) { // Не находит элементы
+      element.classList.add('hidden');
+    });
+
+    var openCardElement = function () {
+      offerCardElement.classList.remove('hidden');
+    };
+
+    Array.from(offerPinElements).forEach(function (element) { // Не находит элементы
+      element.addEventListener('click', openCardElement);
+    });
+  }
 });
 
 var stopMap = function () {
@@ -278,6 +279,6 @@ var stopMap = function () {
   });
 };
 
-var disactivateSitePage = function (evt) {
-  return evt;
-};
+var offerFormButtonSubmit = offerFormElement.querySelector('.ad-form__reset');
+
+offerFormButtonSubmit.addEventListener('click', stopMap);
