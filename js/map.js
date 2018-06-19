@@ -7,10 +7,6 @@ var PIN_WIDTH = 40;
 var PIN_HEIGHT = 40;
 var PIN_MAIN_HEIGHT = 44;
 
-var initialLocation = function () {
-  return (locationSettings.x.MAX / 2 - (PIN_WIDTH / 2)).toString() + ', ' + ((locationSettings.y.MAX / 2) - PIN_MAIN_HEIGHT).toString();
-};
-
 var OFFERS_QUANTITY = 8;
 
 var OFFER_DESCRIPTION = '';
@@ -83,22 +79,20 @@ var PHOTO_WIDTH = 45;
 var PHOTO_HEIGHT = 40;
 var PHOTO_ALT = 'Фотография жилья';
 
+var initialLocation = function () {
+  return (locationSettings.x.MAX / 2 - (PIN_WIDTH / 2)).toString() + ', ' + ((locationSettings.y.MAX / 2) - PIN_MAIN_HEIGHT).toString();
+};
+
 var mapElement = document.querySelector('.map');
-
 var mapPinsElement = document.querySelector('.map__pins');
-
 var mapPinMainElement = mapPinsElement.querySelector('.map__pin--main');
 
 var offerFormElement = document.querySelector('.ad-form');
-
 var offerFormFieldsets = offerFormElement.querySelectorAll('fieldset');
-
 var offerFormInputAddress = offerFormElement.querySelector('#address');
 
 var offerTemplate = document.querySelector('template').content;
-
 var offerCardElement = offerTemplate.querySelector('.map__card');
-
 var offerPinElement = offerTemplate.querySelector('.map__pin');
 
 var removeChildren = function (element) {
@@ -165,23 +159,6 @@ var generateAdverts = function () {
   return offersData;
 };
 
-var createOfferPin = function (offerData) {
-  var pinElement = offerPinElement.cloneNode(true);
-  pinElement.style.left = (offerData.location.x - PIN_WIDTH / 2) + 'px';
-  pinElement.style.top = (offerData.location.y - PIN_HEIGHT) + 'px';
-  pinElement.querySelector('img').src = offerData.author.avatar;
-  pinElement.querySelector('img').alt = offerData.offer.title;
-  return pinElement;
-};
-
-var createPinFragment = function (offers) {
-  var pinFragment = document.createDocumentFragment();
-  offers.forEach(function (offerData) {
-    pinFragment.appendChild(createOfferPin(offerData));
-  });
-  return pinFragment;
-};
-
 var createPhotoElement = function (path) {
   var photoElement = document.createElement('img');
   photoElement.classList.add('popup__photo');
@@ -236,38 +213,60 @@ var createCardElement = function (advert) {
   return cardElement;
 };
 
-var initMap = function () {
-  var adverts = generateAdverts();
+var adverts = generateAdverts();
+
+var openSimilarOfferCard = function (evt) {
+  var target = evt.target;
+  for (var i = 0; i < adverts.length; i++) {
+    if (target === mapPinElements[i]) {
+      mapPinsElement.appendChild(createCardElement(adverts[i]));
+    }
+  }
+};
+
+var mapPinElements = mapPinsElement.querySelectorAll('.map__pin');
+
+var onMapPinClick = function (evt) {
+  var target = evt.target;
+  for (var i = 1; i < mapPinElements.length; i++) {
+    if (target === mapPinElements[i]) {
+      mapPinsElement.appendChild(createCardElement(adverts[i - 1]));
+    }
+  }
+};
+
+var createPinElement = function (offerData) {
+  var pinElement = offerPinElement.cloneNode(true);
+  pinElement.style.left = (offerData.location.x - PIN_WIDTH / 2) + 'px';
+  pinElement.style.top = (offerData.location.y - PIN_HEIGHT) + 'px';
+  pinElement.querySelector('img').src = offerData.author.avatar;
+  pinElement.querySelector('img').alt = offerData.offer.title;
+  pinElement.addEventListener('click', openSimilarOfferCard);
+  return pinElement;
+};
+
+var createPinFragment = function (offers) {
+  var pinFragment = document.createDocumentFragment();
+  offers.forEach(function (offerData) {
+    pinFragment.appendChild(createPinElement(offerData));
+  });
+  return pinFragment;
+};
+
+var onMapMainPinMouseUp = function () {
   mapPinsElement.appendChild(createPinFragment(adverts));
   mapElement.classList.remove('.map--faded');
   offerFormElement.classList.remove('ad-form--disabled');
   offerFormInputAddress.setAttribute('value', initialLocation());
 
-  Array.from(offerFormFieldsets).forEach(function (element) { // Не уверена, что работает
+  Array.from(offerFormFieldsets).forEach(function (element) {
     element.removeAttribute('disabled');
   });
 };
 
+mapPinMainElement.addEventListener('mouseup', onMapMainPinMouseUp);
 
-mapPinMainElement.addEventListener('mouseup', function () {
-  initMap();
-  if (mapPinsElement.hasChildNodes()) {
-    var offerPinElements = mapPinsElement.querySelectorAll('.map__pin');
-    Array.from(offerPinElements).forEach(function (element) {
-      element.addEventListener('click', function (evt) {
-        var target = evt.target;
-        var adverts = generateAdverts();
-        for (var i = 0; i < target.length; i++) {
-          if (target === target[i]) {
-            mapPinsElement.appendChild(createCardElement(adverts[i]));
-          }
-        }
-      });
-    });
-  }
-});
-
-var stopMap = function () {
+var onOfferFormButtonSubmitClick = function () {
   mapElement.classList.add('.map--faded');
   offerFormElement.classList.add('ad-form--disabled');
   Array.from(offerFormFieldsets).forEach(function (element) {
@@ -277,4 +276,4 @@ var stopMap = function () {
 
 var offerFormButtonSubmit = offerFormElement.querySelector('.ad-form__reset');
 
-offerFormButtonSubmit.addEventListener('click', stopMap);
+offerFormButtonSubmit.addEventListener('click', onOfferFormButtonSubmitClick);
