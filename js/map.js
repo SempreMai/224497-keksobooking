@@ -6,6 +6,7 @@ var AVATAR_FILE_TYPE = '.png';
 var PIN_WIDTH = 40;
 var PIN_HEIGHT = 40;
 var PIN_MAIN_HEIGHT = 44;
+var PIN_MAIN_QUANTITY = 1;
 
 var OFFERS_QUANTITY = 8;
 
@@ -80,7 +81,7 @@ var PHOTO_HEIGHT = 40;
 var PHOTO_ALT = 'Фотография жилья';
 
 var initialLocation = function () {
-  return (locationSettings.x.MAX / 2 - (PIN_WIDTH / 2)).toString() + ', ' + ((locationSettings.y.MAX / 2) - PIN_MAIN_HEIGHT).toString();
+  return (locationSettings.x.MAX / 2 - (PIN_WIDTH / 2)).toString() + ', ' + ((locationSettings.y.MAX / 2) - (PIN_MAIN_HEIGHT / 2)).toString();
 };
 
 var mapElement = document.querySelector('.map');
@@ -116,7 +117,6 @@ var createAvatarPath = function (offerIndex) {
 var sliceArrayRandomly = function (array) {
   return array.slice(0, getRandomInt(0, array.length - 1));
 };
-
 
 var shuffleArray = function (array) {
   return array.sort(function () {
@@ -176,21 +176,12 @@ var createFeaturesElement = function (feature) {
   return featureElement;
 };
 
-var getPropertyName = function (key, array) {
-  for (key in array) {
-    if (array.hasOwnProperty(key)) {
-      var name = array[key];
-    }
-  }
-  return name;
-};
-
 var createCardElement = function (advert) {
   var cardElement = offerCardElement.cloneNode(true);
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
-  cardElement.querySelector('.popup__type').textContent = getPropertyName(advert.offer.type, offerSettings.type); // осталась проблема выбора варианта
+  cardElement.querySelector('.popup__type').textContent = offerSettings.type[advert.offer.type]; // осталась проблема выбора варианта
   cardElement.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей.';
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout + '.';
   cardElement.querySelector('.popup__description').textContent = advert.offer.description;
@@ -210,6 +201,10 @@ var createCardElement = function (advert) {
     featuresElement.appendChild(createFeaturesElement(feature));
   });
 
+  cardElement.querySelector('.popup__close').addEventListener('click', function () {
+    mapPinsElement.removeChild(cardElement);
+  });
+
   return cardElement;
 };
 
@@ -220,6 +215,10 @@ var createPinElement = function (offerData) {
   pinElement.querySelector('img').src = offerData.author.avatar;
   pinElement.querySelector('img').alt = offerData.offer.title;
   pinElement.addEventListener('click', function () {
+    var cardElement = mapPinsElement.querySelector('.map__card');
+    if (cardElement) {
+      mapPinsElement.removeChild(cardElement);
+    }
     mapPinsElement.appendChild(createCardElement(offerData));
   });
   return pinElement;
@@ -227,8 +226,11 @@ var createPinElement = function (offerData) {
 
 var createPinFragment = function (offers) {
   var pinFragment = document.createDocumentFragment();
+  var mapPinElements = mapPinsElement.querySelectorAll('.map__pin');
   offers.forEach(function (offerData) {
-    pinFragment.appendChild(createPinElement(offerData));
+    if (mapPinElements.length === PIN_MAIN_QUANTITY) {
+      pinFragment.appendChild(createPinElement(offerData));
+    }
   });
   return pinFragment;
 };
@@ -236,7 +238,7 @@ var createPinFragment = function (offers) {
 var onMapMainPinMouseUp = function () {
   var adverts = generateAdverts();
   mapPinsElement.appendChild(createPinFragment(adverts));
-  mapElement.classList.remove('.map--faded');
+  mapElement.classList.remove('map--faded');
   offerFormElement.classList.remove('ad-form--disabled');
   offerFormInputAddress.setAttribute('value', initialLocation());
 
@@ -247,8 +249,9 @@ var onMapMainPinMouseUp = function () {
 
 mapPinMainElement.addEventListener('mouseup', onMapMainPinMouseUp);
 
+
 var onOfferFormButtonSubmitClick = function () {
-  mapElement.classList.add('.map--faded');
+  mapElement.classList.add('map--faded');
   offerFormElement.classList.add('ad-form--disabled');
   Array.from(offerFormFieldsets).forEach(function (element) {
     element.setAttribute('disabled', 'disabled');
