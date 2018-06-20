@@ -213,35 +213,15 @@ var createCardElement = function (advert) {
   return cardElement;
 };
 
-var adverts = generateAdverts();
-
-var openSimilarOfferCard = function (evt) {
-  var target = evt.target;
-  for (var i = 0; i < adverts.length; i++) {
-    if (target === mapPinElements[i]) {
-      mapPinsElement.appendChild(createCardElement(adverts[i]));
-    }
-  }
-};
-
-var mapPinElements = mapPinsElement.querySelectorAll('.map__pin');
-
-var onMapPinClick = function (evt) {
-  var target = evt.target;
-  for (var i = 1; i < mapPinElements.length; i++) {
-    if (target === mapPinElements[i]) {
-      mapPinsElement.appendChild(createCardElement(adverts[i - 1]));
-    }
-  }
-};
-
 var createPinElement = function (offerData) {
   var pinElement = offerPinElement.cloneNode(true);
   pinElement.style.left = (offerData.location.x - PIN_WIDTH / 2) + 'px';
   pinElement.style.top = (offerData.location.y - PIN_HEIGHT) + 'px';
   pinElement.querySelector('img').src = offerData.author.avatar;
   pinElement.querySelector('img').alt = offerData.offer.title;
-  pinElement.addEventListener('click', openSimilarOfferCard);
+  pinElement.addEventListener('click', function () {
+    mapPinsElement.appendChild(createCardElement(offerData));
+  });
   return pinElement;
 };
 
@@ -254,6 +234,7 @@ var createPinFragment = function (offers) {
 };
 
 var onMapMainPinMouseUp = function () {
+  var adverts = generateAdverts();
   mapPinsElement.appendChild(createPinFragment(adverts));
   mapElement.classList.remove('.map--faded');
   offerFormElement.classList.remove('ad-form--disabled');
