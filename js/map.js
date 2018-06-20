@@ -80,17 +80,14 @@ var PHOTO_WIDTH = 45;
 var PHOTO_HEIGHT = 40;
 var PHOTO_ALT = 'Фотография жилья';
 
-var initialLocation = function () {
-  return (locationSettings.x.MAX / 2 - (PIN_WIDTH / 2)).toString() + ', ' + ((locationSettings.y.MAX / 2) - (PIN_MAIN_HEIGHT / 2)).toString();
-};
-
 var mapElement = document.querySelector('.map');
 var mapPinsElement = document.querySelector('.map__pins');
 var mapPinMainElement = mapPinsElement.querySelector('.map__pin--main');
 
 var offerFormElement = document.querySelector('.ad-form');
-var offerFormFieldsets = offerFormElement.querySelectorAll('fieldset');
+var offerFormFieldsets = offerFormElement.querySelectorAll('.ad-form__element');
 var offerFormInputAddress = offerFormElement.querySelector('#address');
+var offerFormButtonSubmit = offerFormElement.querySelector('.ad-form__submit');
 
 var offerTemplate = document.querySelector('template').content;
 var offerCardElement = offerTemplate.querySelector('.map__card');
@@ -100,6 +97,10 @@ var removeChildren = function (element) {
   while (element.firstChild) {
     element.removeChild(element.firstChild);
   }
+};
+
+var initialLocation = function () {
+  return (locationSettings.x.MAX / 2 - (PIN_WIDTH / 2)) + ', ' + ((locationSettings.y.MAX / 2) - (PIN_MAIN_HEIGHT / 2));
 };
 
 function getRandomInt(min, max) {
@@ -240,24 +241,28 @@ var onMapMainPinMouseUp = function () {
   mapPinsElement.appendChild(createPinFragment(adverts));
   mapElement.classList.remove('map--faded');
   offerFormElement.classList.remove('ad-form--disabled');
-  offerFormInputAddress.setAttribute('value', initialLocation());
 
-  Array.from(offerFormFieldsets).forEach(function (element) {
-    element.removeAttribute('disabled');
+  offerFormFieldsets.forEach(function (element) {
+    element.disabled = false;
   });
+  offerFormButtonSubmit.disabled = false;
 };
-
-mapPinMainElement.addEventListener('mouseup', onMapMainPinMouseUp);
-
 
 var onOfferFormButtonSubmitClick = function () {
   mapElement.classList.add('map--faded');
   offerFormElement.classList.add('ad-form--disabled');
-  Array.from(offerFormFieldsets).forEach(function (element) {
-    element.setAttribute('disabled', 'disabled');
-  });
 };
 
-var offerFormButtonSubmit = offerFormElement.querySelector('.ad-form__reset');
+mapPinMainElement.addEventListener('mouseup', onMapMainPinMouseUp);
 
 offerFormButtonSubmit.addEventListener('click', onOfferFormButtonSubmitClick);
+
+var loadPage = function () {
+  offerFormInputAddress.value = initialLocation();
+  offerFormFieldsets.forEach(function (element) {
+    element.disabled = true;
+  });
+  offerFormButtonSubmit.disabled = true;
+};
+
+loadPage();
