@@ -182,7 +182,7 @@ var createCardElement = function (advert) {
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
-  cardElement.querySelector('.popup__type').textContent = offerSettings.type[advert.offer.type]; // осталась проблема выбора варианта
+  cardElement.querySelector('.popup__type').textContent = offerSettings.type[advert.offer.type];
   cardElement.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей.';
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout + '.';
   cardElement.querySelector('.popup__description').textContent = advert.offer.description;
@@ -236,10 +236,7 @@ var createPinFragment = function (offers) {
   return pinFragment;
 };
 
-var onMapMainPinMouseUp = function () {
-  var adverts = generateAdverts();
-  mapPinsElement.appendChild(createPinFragment(adverts));
-  mapElement.classList.remove('map--faded');
+var activateOfferForm = function () {
   offerFormElement.classList.remove('ad-form--disabled');
 
   offerFormFieldsets.forEach(function (element) {
@@ -248,16 +245,18 @@ var onMapMainPinMouseUp = function () {
   offerFormButtonSubmit.disabled = false;
 };
 
-var onOfferFormButtonSubmitClick = function () {
-  mapElement.classList.add('map--faded');
-  offerFormElement.classList.add('ad-form--disabled');
+var onMapMainPinMouseUp = function () {
+  var adverts = generateAdverts();
+  mapPinsElement.appendChild(createPinFragment(adverts));
+  mapElement.classList.remove('map--faded');
+  activateOfferForm();
 };
 
 mapPinMainElement.addEventListener('mouseup', onMapMainPinMouseUp);
 
-offerFormButtonSubmit.addEventListener('click', onOfferFormButtonSubmitClick);
-
-var loadPage = function () {
+var deactivateOfferForm = function () {
+  mapElement.classList.add('map--faded');
+  offerFormElement.classList.add('ad-form--disabled');
   offerFormInputAddress.value = initialLocation();
   offerFormFieldsets.forEach(function (element) {
     element.disabled = true;
@@ -265,4 +264,4 @@ var loadPage = function () {
   offerFormButtonSubmit.disabled = true;
 };
 
-loadPage();
+deactivateOfferForm();
