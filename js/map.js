@@ -2,8 +2,11 @@
 
 var AVATAR_FOLDER_PATH = 'img/avatars/user';
 var AVATAR_FILE_TYPE = '.png';
+
 var PIN_WIDTH = 40;
 var PIN_HEIGHT = 40;
+var PIN_MAIN_HEIGHT = 44;
+var PIN_MAIN_QUANTITY = 1;
 
 var OFFERS_QUANTITY = 8;
 
@@ -19,13 +22,6 @@ var OFFER_TITLES = [
   'Уютное бунгало далеко от моря',
   'Неуютное бунгало по колено в воде'
 ];
-
-var OFFER_TYPES = {
-  palace: 'Дворец',
-  flat: 'Квартира',
-  house: 'Дом',
-  bungalo: 'Бунгало',
-};
 
 var OFFER_CHECK_HOURS = [
   '12:00',
@@ -60,6 +56,12 @@ var locationSettings = {
 };
 
 var offerSettings = {
+  type: {
+    palace: 'Дворец',
+    flat: 'Квартира',
+    house: 'Дом',
+    bungalo: 'Бунгало',
+  },
   price: {
     MIN: 1000,
     MAX: 1000000,
@@ -79,19 +81,26 @@ var PHOTO_HEIGHT = 40;
 var PHOTO_ALT = 'Фотография жилья';
 
 var mapElement = document.querySelector('.map');
-
 var mapPinsElement = document.querySelector('.map__pins');
+var mapPinMainElement = mapPinsElement.querySelector('.map__pin--main');
+
+var offerFormElement = document.querySelector('.ad-form');
+var offerFormFieldsets = offerFormElement.querySelectorAll('.ad-form__element');
+var offerFormInputAddress = offerFormElement.querySelector('#address');
+var offerFormButtonSubmit = offerFormElement.querySelector('.ad-form__submit');
 
 var offerTemplate = document.querySelector('template').content;
-
 var offerCardElement = offerTemplate.querySelector('.map__card');
-
 var offerPinElement = offerTemplate.querySelector('.map__pin');
 
 var removeChildren = function (element) {
   while (element.firstChild) {
     element.removeChild(element.firstChild);
   }
+};
+
+var initialLocation = function () {
+  return (locationSettings.x.MAX / 2 - (PIN_WIDTH / 2)) + ', ' + ((locationSettings.y.MAX / 2) - (PIN_MAIN_HEIGHT / 2));
 };
 
 function getRandomInt(min, max) {
@@ -110,7 +119,6 @@ var sliceArrayRandomly = function (array) {
   return array.slice(0, getRandomInt(0, array.length - 1));
 };
 
-
 var shuffleArray = function (array) {
   return array.sort(function () {
     return 0.5 - Math.random();
@@ -128,7 +136,7 @@ var generateOfferData = function (offerIndex) {
       title: OFFER_TITLES[offerIndex],
       address: locationX + ', ' + locationY,
       price: getRandomInt(offerSettings.price.MIN, offerSettings.price.MIN),
-      type: getRandomArrayItem(Object.keys(OFFER_TYPES)),
+      type: getRandomArrayItem(Object.keys(offerSettings.type)),
       rooms: getRandomInt(offerSettings.roomsNumber.MIN, offerSettings.roomsNumber.MAX),
       guests: getRandomInt(offerSettings.guestsNumber.MIN, offerSettings.guestsNumber.MIN),
       checkin: getRandomArrayItem(OFFER_CHECK_HOURS),
@@ -152,23 +160,6 @@ var generateAdverts = function () {
   return offersData;
 };
 
-var createOfferPin = function (offerData) {
-  var pinElement = offerPinElement.cloneNode(true);
-  pinElement.style.left = (offerData.location.x - PIN_WIDTH / 2) + 'px';
-  pinElement.style.top = (offerData.location.y - PIN_HEIGHT) + 'px';
-  pinElement.querySelector('img').src = offerData.author.avatar;
-  pinElement.querySelector('img').alt = offerData.offer.title;
-  return pinElement;
-};
-
-var createPinFragment = function (offers) {
-  var pinFragment = document.createDocumentFragment();
-  offers.forEach(function (offerData) {
-    pinFragment.appendChild(createOfferPin(offerData));
-  });
-  return pinFragment;
-};
-
 var createPhotoElement = function (path) {
   var photoElement = document.createElement('img');
   photoElement.classList.add('popup__photo');
@@ -186,21 +177,12 @@ var createFeaturesElement = function (feature) {
   return featureElement;
 };
 
-var getPropertyName = function (key, array) {
-  for (key in array) {
-    if (array.hasOwnProperty(key)) {
-      var name = array[key];
-    }
-  }
-  return name;
-};
-
 var createCardElement = function (advert) {
   var cardElement = offerCardElement.cloneNode(true);
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
-  cardElement.querySelector('.popup__type').textContent = getPropertyName(advert.offer.type, OFFER_TYPES);
+  cardElement.querySelector('.popup__type').textContent = offerSettings.type[advert.offer.type];
   cardElement.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей.';
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ', выезд до ' + advert.offer.checkout + '.';
   cardElement.querySelector('.popup__description').textContent = advert.offer.description;
@@ -220,15 +202,66 @@ var createCardElement = function (advert) {
     featuresElement.appendChild(createFeaturesElement(feature));
   });
 
+  cardElement.querySelector('.popup__close').addEventListener('click', function () {
+    mapPinsElement.removeChild(cardElement);
+  });
+
   return cardElement;
 };
 
-var initMap = function () {
-  var adverts = generateAdverts();
-  mapPinsElement.appendChild(createCardElement(adverts[0]));
-  mapPinsElement.appendChild(createPinFragment(adverts));
-  mapElement.classList.remove('.map--faded');
+var createPinElement = function (offerData) {
+  var pinElement = offerPinElement.cloneNode(true);
+  pinElement.style.left = (offerData.location.x - PIN_WIDTH / 2) + 'px';
+  pinElement.style.top = (offerData.location.y - PIN_HEIGHT) + 'px';
+  pinElement.querySelector('img').src = offerData.author.avatar;
+  pinElement.querySelector('img').alt = offerData.offer.title;
+  pinElement.addEventListener('click', function () {
+    var cardElement = mapPinsElement.querySelector('.map__card');
+    if (cardElement) {
+      mapPinsElement.removeChild(cardElement);
+    }
+    mapPinsElement.appendChild(createCardElement(offerData));
+  });
+  return pinElement;
 };
 
-initMap();
+var createPinFragment = function (offers) {
+  var pinFragment = document.createDocumentFragment();
+  var mapPinElements = mapPinsElement.querySelectorAll('.map__pin');
+  offers.forEach(function (offerData) {
+    if (mapPinElements.length === PIN_MAIN_QUANTITY) {
+      pinFragment.appendChild(createPinElement(offerData));
+    }
+  });
+  return pinFragment;
+};
 
+var activateOfferForm = function () {
+  offerFormElement.classList.remove('ad-form--disabled');
+
+  offerFormFieldsets.forEach(function (element) {
+    element.disabled = false;
+  });
+  offerFormButtonSubmit.disabled = false;
+};
+
+var onMapMainPinMouseUp = function () {
+  var adverts = generateAdverts();
+  mapPinsElement.appendChild(createPinFragment(adverts));
+  mapElement.classList.remove('map--faded');
+  activateOfferForm();
+};
+
+mapPinMainElement.addEventListener('mouseup', onMapMainPinMouseUp);
+
+var deactivateOfferForm = function () {
+  mapElement.classList.add('map--faded');
+  offerFormElement.classList.add('ad-form--disabled');
+  offerFormInputAddress.value = initialLocation();
+  offerFormFieldsets.forEach(function (element) {
+    element.disabled = true;
+  });
+  offerFormButtonSubmit.disabled = true;
+};
+
+deactivateOfferForm();
