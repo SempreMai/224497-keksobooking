@@ -44,6 +44,18 @@ var OFFER_PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
 
+var INDEX_GUESTS_THREE = 0;
+var INDEX_GUESTS_TWO = 1;
+var INDEX_GUESTS_ONE = 2;
+var INDEX_NO_GUESTS = 3;
+
+var roomsIndexList = [
+  [INDEX_NO_GUESTS, INDEX_GUESTS_TWO, INDEX_GUESTS_THREE],
+  [INDEX_GUESTS_THREE, INDEX_NO_GUESTS],
+  [INDEX_NO_GUESTS],
+  [INDEX_GUESTS_ONE, INDEX_GUESTS_TWO, INDEX_GUESTS_THREE],
+];
+
 var locationSettings = {
   x: {
     MIN: 300,
@@ -87,6 +99,9 @@ var mapPinMainElement = mapPinsElement.querySelector('.map__pin--main');
 var offerFormElement = document.querySelector('.ad-form');
 var offerFormFieldsets = offerFormElement.querySelectorAll('.ad-form__element');
 var offerFormInputAddress = offerFormElement.querySelector('#address');
+var offerFormSelectRooms = document.querySelector('#room_number');
+var offerFormSelectGuests = document.querySelector('#capacity');
+var offerFormGuestOptions = offerFormSelectGuests.querySelectorAll('option');
 var offerFormButtonSubmit = offerFormElement.querySelector('.ad-form__submit');
 
 var offerTemplate = document.querySelector('template').content;
@@ -245,14 +260,31 @@ var activateOfferForm = function () {
   offerFormButtonSubmit.disabled = false;
 };
 
-var onMapMainPinMouseUp = function () {
+var checkRoomCapacity = function () {
+  var roomsIndexSelected = offerFormSelectRooms.selectedIndex;
+  offerFormSelectGuests.options[0].disabled = true;
+  offerFormSelectGuests.options[1].disabled = true;
+  offerFormSelectGuests.options[3].disabled = true;
+  if (roomsIndexSelected !== 0) {
+    offerFormGuestOptions.forEach(function (option) {
+      option.disabled = false;
+    });
+    var invalidities = roomsIndexList[roomsIndexSelected];
+    invalidities.forEach(function (element) {
+      offerFormSelectGuests.options[element].disabled = true;
+    });
+  }
+};
+
+var initPage = function () {
   var adverts = generateAdverts();
   mapPinsElement.appendChild(createPinFragment(adverts));
   mapElement.classList.remove('map--faded');
   activateOfferForm();
+  checkRoomCapacity();
 };
 
-mapPinMainElement.addEventListener('mouseup', onMapMainPinMouseUp);
+mapPinMainElement.addEventListener('mouseup', initPage);
 
 var deactivateOfferForm = function () {
   mapElement.classList.add('map--faded');
