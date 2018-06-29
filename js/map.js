@@ -309,24 +309,24 @@ var onDocumentKeydown = function (evt) {
   }
 };
 
+var showMessageSuccess = function () {
+  successBlock.classList.remove('hidden');
+  document.addEventListener('keydown', function (evt) {
+    onDocumentKeydown();
+  });
+};
+
 var closeSuccessBlock = function () {
   successBlock.classList.add('hidden');
   document.removeEventListener('keydown', onDocumentKeydown);
 };
+
 
 var onSuccessBlockClick = function (evt) {
   var target = evt.target;
   if (target === successBlock) {
     closeSuccessBlock();
   }
-};
-
-var showMessageSuccess = function () {
-  successBlock.classList.remove('hidden');
-  document.addEventListener('keydown', function (evt) {
-    evt.preventDefault();
-    onDocumentKeydown();
-  });
 };
 
 var offerFormButtonReset = offerFormElement.querySelector('.ad-form__reset');
