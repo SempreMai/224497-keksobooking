@@ -44,18 +44,6 @@ var OFFER_PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
 
-var INDEX_GUESTS_THREE = 0;
-var INDEX_GUESTS_TWO = 1;
-var INDEX_GUESTS_ONE = 2;
-var INDEX_NO_GUESTS = 3;
-
-var roomsIndexList = [
-  [INDEX_NO_GUESTS, INDEX_GUESTS_TWO, INDEX_GUESTS_THREE],
-  [INDEX_GUESTS_THREE, INDEX_NO_GUESTS],
-  [INDEX_NO_GUESTS],
-  [INDEX_GUESTS_ONE, INDEX_GUESTS_TWO, INDEX_GUESTS_THREE],
-];
-
 var locationSettings = {
   x: {
     MIN: 300,
@@ -92,17 +80,12 @@ var PHOTO_WIDTH = 45;
 var PHOTO_HEIGHT = 40;
 var PHOTO_ALT = 'Фотография жилья';
 
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
+
 var mapElement = document.querySelector('.map');
 var mapPinsElement = document.querySelector('.map__pins');
 var mapPinMainElement = mapPinsElement.querySelector('.map__pin--main');
-
-var offerFormElement = document.querySelector('.ad-form');
-var offerFormFieldsets = offerFormElement.querySelectorAll('.ad-form__element');
-var offerFormInputAddress = offerFormElement.querySelector('#address');
-var offerFormSelectRooms = document.querySelector('#room_number');
-var offerFormSelectGuests = document.querySelector('#capacity');
-var offerFormGuestOptions = offerFormSelectGuests.querySelectorAll('option');
-var offerFormButtonSubmit = offerFormElement.querySelector('.ad-form__submit');
 
 var offerTemplate = document.querySelector('template').content;
 var offerCardElement = offerTemplate.querySelector('.map__card');
@@ -250,6 +233,41 @@ var createPinFragment = function (offers) {
   });
   return pinFragment;
 };
+var adverts = generateAdverts();
+
+var deletePinFragment = function (element) {
+  var children = element.children;
+  for (var i = children.length - 1; i >= 2; i--) {
+    var child = children[i];
+    child.parentElement.removeChild(child);
+  }
+};
+
+var offerFormElement = document.querySelector('.ad-form');
+var offerFormFieldsets = offerFormElement.querySelectorAll('.ad-form__element');
+var offerFormInputAddress = offerFormElement.querySelector('#address');
+var offerFormSelectRooms = document.querySelector('#room_number');
+var offerFormSelectGuests = document.querySelector('#capacity');
+var offerFormButtonSubmit = document.querySelector('.ad-form__submit');
+var successBlock = document.querySelector('.success');
+
+var roomsCapacity = {
+  '1': ['1'],
+  '2': ['1', '2'],
+  '3': ['1', '2', '3'],
+  '100': ['0'],
+};
+
+var setCapacity = function (roomsNumber) {
+  var capacityOptions = offerFormSelectGuests.options;
+  for (var i = 0; i < capacityOptions.length; i++) {
+    var option = capacityOptions[i];
+    option.disabled = !roomsCapacity[roomsNumber].includes(option.value);
+  }
+  if (capacityOptions[offerFormSelectGuests.selectedIndex].disabled) {
+    offerFormSelectGuests.value = roomsCapacity[roomsNumber][0];
+  }
+};
 
 var activateOfferForm = function () {
   offerFormElement.classList.remove('ad-form--disabled');
@@ -260,31 +278,19 @@ var activateOfferForm = function () {
   offerFormButtonSubmit.disabled = false;
 };
 
-var checkRoomCapacity = function () {
-  var roomsIndexSelected = offerFormSelectRooms.selectedIndex;
-  offerFormSelectGuests.options[0].disabled = true;
-  offerFormSelectGuests.options[1].disabled = true;
-  offerFormSelectGuests.options[3].disabled = true;
-  if (roomsIndexSelected !== 0) {
-    offerFormGuestOptions.forEach(function (option) {
-      option.disabled = false;
-    });
-    var invalidities = roomsIndexList[roomsIndexSelected];
-    invalidities.forEach(function (element) {
-      offerFormSelectGuests.options[element].disabled = true;
-    });
-  }
-};
-
 var initPage = function () {
-  var adverts = generateAdverts();
   mapPinsElement.appendChild(createPinFragment(adverts));
   mapElement.classList.remove('map--faded');
   activateOfferForm();
-  checkRoomCapacity();
+  setCapacity(offerFormSelectRooms.value);
 };
 
 mapPinMainElement.addEventListener('mouseup', initPage);
+
+var resetForm = function () {
+  offerFormElement.reset();
+  setCapacity(offerFormSelectRooms.value);
+};
 
 var deactivateOfferForm = function () {
   mapElement.classList.add('map--faded');
@@ -294,6 +300,65 @@ var deactivateOfferForm = function () {
     element.disabled = true;
   });
   offerFormButtonSubmit.disabled = true;
+  deletePinFragment(mapPinsElement);
 };
 
-deactivateOfferForm();
+var onDocumentKeydown = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closeSuccessBlock();
+  }
+};
+
+var closeSuccessBlock = function () {
+  successBlock.classList.add('hidden');
+  document.removeEventListener('keydown', onDocumentKeydown);
+};
+
+var onSuccessBlockClick = function (evt) {
+  var target = evt.target;
+  if (target === successBlock) {
+    closeSuccessBlock();
+  }
+};
+
+var showMessageSuccess = function () {
+  successBlock.classList.remove('hidden');
+  document.addEventListener('keydown', function (evt) {
+    evt.preventDefault();
+    onDocumentKeydown();
+  });
+};
+
+var offerFormButtonReset = offerFormElement.querySelector('.ad-form__reset');
+offerFormButtonReset.addEventListener('click', function (evt) {
+  evt.preventDefault();
+  resetForm();
+  deactivateOfferForm();
+});
+
+var onOfferFormClick = function (evt) {
+  var target = evt.target;
+  if (target === offerFormButtonSubmit) {
+    deactivateOfferForm();
+    showMessageSuccess();
+  }
+};
+
+var onOfferFormKeydown = function (evt) {
+  var target = evt.target;
+  if (evt.keyCode === ENTER_KEYCODE && target === offerFormButtonSubmit) {
+    offerFormElement.submit();
+    deactivateOfferForm();
+    showMessageSuccess();
+  }
+};
+
+offerFormSelectRooms.addEventListener('change', function (evt) {
+  setCapacity(evt.target.value);
+});
+
+offerFormButtonSubmit.addEventListener('click', onOfferFormClick);
+
+offerFormButtonSubmit.addEventListener('keydown', onOfferFormKeydown);
+
+successBlock.addEventListener('click', onSuccessBlockClick);
