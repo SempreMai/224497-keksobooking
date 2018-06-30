@@ -311,9 +311,7 @@ var onDocumentKeydown = function (evt) {
 
 var showMessageSuccess = function () {
   successBlock.classList.remove('hidden');
-  document.addEventListener('keydown', function (evt) {
-    onDocumentKeydown();
-  });
+  document.addEventListener('keydown', onDocumentKeydown);
 };
 
 var closeSuccessBlock = function () {
