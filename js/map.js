@@ -250,6 +250,31 @@ var offerFormSelectRooms = document.querySelector('#room_number');
 var offerFormSelectGuests = document.querySelector('#capacity');
 var offerFormButtonSubmit = document.querySelector('.ad-form__submit');
 var successBlock = document.querySelector('.success');
+var offerFormSelectType = document.querySelector('#type');
+var offerFormInputPrice = document.querySelector('#price');
+var offerFormSelectTimeIn = document.querySelector('#timein');
+var offerFormSelectTimeOut = document.querySelector('#timeout');
+
+var typePrice = {
+  bungalo: {
+    MIN: '0',
+  },
+  flat: {
+    MIN: '1000',
+  },
+  house: {
+    MIN: '5000',
+  },
+  palace: {
+    MIN: '10000',
+  },
+};
+
+
+var setPrice = function (propertyType) {
+  offerFormInputPrice.min = typePrice[propertyType].MIN;
+  offerFormInputPrice.placeholder = typePrice[propertyType].MIN;
+};
 
 var roomsCapacity = {
   '1': ['1'],
@@ -269,6 +294,11 @@ var setCapacity = function (roomsNumber) {
   }
 };
 
+var setTime = function (timeInIndex) {
+  offerFormSelectTimeOut.options[timeInIndex].selected = true;
+};
+
+
 var activateOfferForm = function () {
   offerFormElement.classList.remove('ad-form--disabled');
 
@@ -283,24 +313,40 @@ var initPage = function () {
   mapElement.classList.remove('map--faded');
   activateOfferForm();
   setCapacity(offerFormSelectRooms.value);
+  setPrice(offerFormSelectType.value);
+  setTime(offerFormSelectTimeIn.selectedIndex);
 };
 
 mapPinMainElement.addEventListener('mouseup', initPage);
 
+offerFormSelectType.addEventListener('change', function (evt) {
+  setPrice(evt.target.value);
+});
+
+offerFormSelectRooms.addEventListener('change', function (evt) {
+  setCapacity(evt.target.value);
+});
+
+offerFormSelectTimeIn.addEventListener('change', function (evt) {
+  setTime(evt.target.selectedIndex);
+});
+
 var resetForm = function () {
   offerFormElement.reset();
+  deletePinFragment(mapPinsElement);
+  setPrice(offerFormSelectType.value);
   setCapacity(offerFormSelectRooms.value);
+  setTime(offerFormSelectTimeIn.selectedIndex);
 };
 
 var deactivateOfferForm = function () {
   mapElement.classList.add('map--faded');
   offerFormElement.classList.add('ad-form--disabled');
   offerFormInputAddress.value = initialLocation();
+  offerFormButtonSubmit.disabled = true;
   offerFormFieldsets.forEach(function (element) {
     element.disabled = true;
   });
-  offerFormButtonSubmit.disabled = true;
-  deletePinFragment(mapPinsElement);
 };
 
 var onDocumentKeydown = function (evt) {
@@ -338,6 +384,7 @@ var onOfferFormClick = function (evt) {
   var target = evt.target;
   if (target === offerFormButtonSubmit) {
     deactivateOfferForm();
+    resetForm();
     showMessageSuccess();
   }
 };
@@ -345,15 +392,11 @@ var onOfferFormClick = function (evt) {
 var onOfferFormKeydown = function (evt) {
   var target = evt.target;
   if (evt.keyCode === ENTER_KEYCODE && target === offerFormButtonSubmit) {
-    offerFormElement.submit();
     deactivateOfferForm();
+    resetForm();
     showMessageSuccess();
   }
 };
-
-offerFormSelectRooms.addEventListener('change', function (evt) {
-  setCapacity(evt.target.value);
-});
 
 offerFormButtonSubmit.addEventListener('click', onOfferFormClick);
 
