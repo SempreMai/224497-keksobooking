@@ -80,9 +80,6 @@ var PHOTO_WIDTH = 45;
 var PHOTO_HEIGHT = 40;
 var PHOTO_ALT = 'Фотография жилья';
 
-var ESC_KEYCODE = 27;
-var ENTER_KEYCODE = 13;
-
 var mapElement = document.querySelector('.map');
 var mapPinsElement = document.querySelector('.map__pins');
 var mapPinMainElement = mapPinsElement.querySelector('.map__pin--main');
@@ -249,7 +246,6 @@ var offerFormInputAddress = offerFormElement.querySelector('#address');
 var offerFormSelectRooms = document.querySelector('#room_number');
 var offerFormSelectGuests = document.querySelector('#capacity');
 var offerFormButtonSubmit = document.querySelector('.ad-form__submit');
-var successBlock = document.querySelector('.success');
 var offerFormSelectType = document.querySelector('#type');
 var offerFormInputPrice = document.querySelector('#price');
 var offerFormSelectTimeIn = document.querySelector('#timein');
