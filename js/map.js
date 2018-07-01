@@ -294,10 +294,13 @@ var setCapacity = function (roomsNumber) {
   }
 };
 
-var setTime = function (timeInIndex) {
-  offerFormSelectTimeOut.options[timeInIndex].selected = true;
+var setTime = function (target, timeIndex) {
+  if (target === offerFormSelectTimeIn) {
+    offerFormSelectTimeOut.options[timeIndex].selected = true;
+  } else if (target === offerFormSelectTimeOut) {
+    offerFormSelectTimeIn.options[timeIndex].selected = true;
+  }
 };
-
 
 var activateOfferForm = function () {
   offerFormElement.classList.remove('ad-form--disabled');
@@ -328,7 +331,11 @@ offerFormSelectRooms.addEventListener('change', function (evt) {
 });
 
 offerFormSelectTimeIn.addEventListener('change', function (evt) {
-  setTime(evt.target.selectedIndex);
+  setTime(evt.target, evt.target.selectedIndex);
+});
+
+offerFormSelectTimeOut.addEventListener('change', function (evt) {
+  setTime(evt.target, evt.target.selectedIndex);
 });
 
 var resetForm = function () {
@@ -349,30 +356,6 @@ var deactivateOfferForm = function () {
   });
 };
 
-var onDocumentKeydown = function (evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
-    closeSuccessBlock();
-  }
-};
-
-var showMessageSuccess = function () {
-  successBlock.classList.remove('hidden');
-  document.addEventListener('keydown', onDocumentKeydown);
-};
-
-var closeSuccessBlock = function () {
-  successBlock.classList.add('hidden');
-  document.removeEventListener('keydown', onDocumentKeydown);
-};
-
-
-var onSuccessBlockClick = function (evt) {
-  var target = evt.target;
-  if (target === successBlock) {
-    closeSuccessBlock();
-  }
-};
-
 var offerFormButtonReset = offerFormElement.querySelector('.ad-form__reset');
 offerFormButtonReset.addEventListener('click', function (evt) {
   evt.preventDefault();
@@ -380,26 +363,6 @@ offerFormButtonReset.addEventListener('click', function (evt) {
   deactivateOfferForm();
 });
 
-var onOfferFormClick = function (evt) {
-  var target = evt.target;
-  if (target === offerFormButtonSubmit) {
-    deactivateOfferForm();
-    resetForm();
-    showMessageSuccess();
-  }
-};
+resetForm();
+deactivateOfferForm();
 
-var onOfferFormKeydown = function (evt) {
-  var target = evt.target;
-  if (evt.keyCode === ENTER_KEYCODE && target === offerFormButtonSubmit) {
-    deactivateOfferForm();
-    resetForm();
-    showMessageSuccess();
-  }
-};
-
-offerFormButtonSubmit.addEventListener('click', onOfferFormClick);
-
-offerFormButtonSubmit.addEventListener('keydown', onOfferFormKeydown);
-
-successBlock.addEventListener('click', onSuccessBlockClick);
