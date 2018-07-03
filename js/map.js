@@ -3,9 +3,10 @@
 var AVATAR_FOLDER_PATH = 'img/avatars/user';
 var AVATAR_FILE_TYPE = '.png';
 
-var PIN_WIDTH = 40;
-var PIN_HEIGHT = 40;
-var PIN_MAIN_HEIGHT = 44;
+var PIN_WIDTH = 50;
+var PIN_HEIGHT = 70;
+var PIN_MAIN_WIDTH = 65;
+var PIN_MAIN_HEIGHT = 87;
 var PIN_MAIN_QUANTITY = 1;
 
 var OFFERS_QUANTITY = 8;
@@ -92,10 +93,6 @@ var removeChildren = function (element) {
   while (element.firstChild) {
     element.removeChild(element.firstChild);
   }
-};
-
-var initialLocation = function () {
-  return (locationSettings.x.MAX / 2 - (PIN_WIDTH / 2)) + ', ' + ((locationSettings.y.MAX / 2) - (PIN_MAIN_HEIGHT / 2));
 };
 
 function getRandomInt(min, max) {
@@ -250,6 +247,7 @@ var offerFormSelectType = document.querySelector('#type');
 var offerFormInputPrice = document.querySelector('#price');
 var offerFormSelectTimeIn = document.querySelector('#timein');
 var offerFormSelectTimeOut = document.querySelector('#timeout');
+var mapPinMainImg = document.querySelector('.map__pin--main > img');
 
 var typePrice = {
   bungalo: {
@@ -305,6 +303,7 @@ var activateOfferForm = function () {
     element.disabled = false;
   });
   offerFormButtonSubmit.disabled = false;
+  offerFormInputAddress.value = locatePinMain(mapPinMainImg.x, mapPinMainImg.y);
 };
 
 var initPage = function () {
@@ -316,7 +315,79 @@ var initPage = function () {
   setTime(offerFormSelectTimeIn.selectedIndex);
 };
 
-mapPinMainElement.addEventListener('mouseup', initPage);
+var locatePinMain = function (mainPinX, mainPinY) {
+  return (Math.round(mainPinX - (PIN_MAIN_WIDTH / 2))) + ', ' + (mainPinY - PIN_MAIN_HEIGHT);
+};
+
+mapPinMainElement.addEventListener('mousedown', function (evt) {
+  console.log(event);
+  evt.preventDefault();
+  var limitation = {
+    x: {
+      min: evt.path[3].offsetLeft,
+      max: evt.path[2].offsetWidth,
+    },
+    y: {
+      MIN: '130',
+      MAX: '630',
+    },
+  };
+
+  var startCoordinates = {
+    x: evt.clientX,
+    y: evt.clientY,
+  };
+
+  var dragged = false;
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+    dragged = true;
+
+    var setMoved = function (moveEvtValue, minCoordinate, maxCoordinate) {
+      if (moveEvtValue < minCoordinate) {
+        moveEvtValue = minCoordinate;
+      } else if (moveEvtValue > maxCoordinate) {
+        moveEvtValue = maxCoordinate;
+      }
+      return moveEvtValue;
+    };
+
+    var limitedX = setMoved(moveEvt.clientX, limitation.x.min, limitation.x.max);
+    var limitedY = setMoved(moveEvt.clientY, limitation.y.MIN, limitation.y.MAX);
+
+    var shift = {
+      x: startCoordinates.x - limitedX,
+      y: startCoordinates.y - limitedY,
+    };
+
+    startCoordinates = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY,
+    };
+
+    mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
+    mapPinMainElement.style.left = (mapPinMainElement.offsetTop - shift.x) + 'px';
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    mapPinsElement.removeEventListener('mousemove', onMouseMove);
+    mapPinsElement.removeEventListener('mouseup', onMouseUp);
+
+    if (dragged) {
+      var onClickPreventInit = function () {
+        upEvt.preventDefault();
+        mapPinMainElement.removeEventListener('mouseup', onClickPreventInit);
+      };
+      mapPinMainElement.addEventListener('mouseup', onClickPreventInit);
+    }
+  };
+  mapPinsElement.addEventListener('mousemove', onMouseMove);
+  mapPinsElement.addEventListener('mouseup', onMouseUp);
+});
+
+mapPinMainElement.addEventListener('click', initPage);
 
 offerFormSelectType.addEventListener('change', function (evt) {
   setPrice(evt.target.value);
@@ -345,7 +416,7 @@ var resetForm = function () {
 var deactivateOfferForm = function () {
   mapElement.classList.add('map--faded');
   offerFormElement.classList.add('ad-form--disabled');
-  offerFormInputAddress.value = initialLocation();
+  offerFormInputAddress.value = locatePinMain(mapPinMainImg.x, mapPinMainImg.y);
   offerFormButtonSubmit.disabled = true;
   offerFormFieldsets.forEach(function (element) {
     element.disabled = true;
