@@ -353,13 +353,13 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
     dragged = true;
 
     var shift = {
-      x: startCoordinates.x - moveEvt,
-      y: startCoordinates.y - moveEvt,
+      x: startCoordinates.x - moveEvt.clientX,
+      y: startCoordinates.y - moveEvt.clientY,
     };
 
-    startCoordinates = {
-      x: moveEvt.clientX,
-      y: moveEvt.clientY,
+    var newCoordinates = {
+      x: '',
+      y: '',
     };
 
     mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
