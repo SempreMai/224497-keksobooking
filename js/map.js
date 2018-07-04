@@ -5,8 +5,6 @@ var AVATAR_FILE_TYPE = '.png';
 
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
-var PIN_MAIN_WIDTH = 65;
-var PIN_MAIN_HEIGHT = 87;
 var PIN_MAIN_QUANTITY = 1;
 
 var OFFERS_QUANTITY = 8;
@@ -337,16 +335,14 @@ var mainPinSettings = {
   },
 };
 
-var newCoordinates = {
-  x: '',
-  y: '',
+var movePinMain = function (x, y) {
+  mapPinMainElement.style.top = y + 'px';
+  mapPinMainElement.style.left = x + 'px';
 };
 
-var movePinMain = function (mainPinX, mainPinY) {
-  return (Math.round(mainPinX - (PIN_MAIN_WIDTH / 2))) + ', ' + (mainPinY - PIN_MAIN_HEIGHT);
+var setAddress = function (address) {
+  offerFormInputAddress.value = address.x + ', ' + address.y;
 };
-
-movePinMain(newCoordinates.x, newCoordinates.y);
 
 mapPinMainElement.addEventListener('mousedown', function (evt) {
   evt.preventDefault();
@@ -357,6 +353,7 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
   };
 
   var dragged = false;
+
   var onMouseMove = function (moveEvt) {
     moveEvt.preventDefault();
     dragged = true;
@@ -365,6 +362,13 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
       x: startCoordinates.x - moveEvt.clientX,
       y: startCoordinates.y - moveEvt.clientY,
     };
+
+    var newCoordinates = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY,
+    };
+
+    movePinMain(newCoordinates.x, newCoordinates.y);
 
     mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
     mapPinMainElement.style.left = (mapPinMainElement.offsetTop - shift.x) + 'px';
@@ -417,7 +421,7 @@ var resetForm = function () {
 var deactivateOfferForm = function () {
   mapElement.classList.add('map--faded');
   offerFormElement.classList.add('ad-form--disabled');
-  offerFormInputAddress.value = movePinMain(mainPinSettings.defaultPosition.x, mainPinSettings.defaultPosition.y);
+  offerFormInputAddress.value = movePinMain(mainPinSettings.defaultPosition.LEFT, mainPinSettings.defaultPosition.TOP);
   offerFormButtonSubmit.disabled = true;
   offerFormFieldsets.forEach(function (element) {
     element.disabled = true;
