@@ -338,6 +338,11 @@ var mainPinSettings = {
 var movePinMain = function (x, y) {
   mapPinMainElement.style.top = y + 'px';
   mapPinMainElement.style.left = x + 'px';
+  setAddress(calculateAddress(x, y));
+};
+
+var calculateAddress = function (pinMainX, pinMainY) {
+  return (Math.round(pinMainX - (mainPinSettings.size.active / 2)) + ', ' + (pinMainY - mainPinSettings.size.active));
 };
 
 var setAddress = function (address) {
