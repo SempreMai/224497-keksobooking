@@ -303,7 +303,7 @@ var activateOfferForm = function () {
     element.disabled = false;
   });
   offerFormButtonSubmit.disabled = false;
-  offerFormInputAddress.value = locatePinMain(mapPinMainImg.x, mapPinMainImg.y);
+  offerFormInputAddress.value = movePinMain(mapPinMainImg.x, mapPinMainImg.y);
 };
 
 var initPage = function () {
@@ -315,27 +315,49 @@ var initPage = function () {
   setTime(offerFormSelectTimeIn.selectedIndex);
 };
 
-var locatePinMain = function (mainPinX, mainPinY) {
+var movePinMain = function (mainPinX, mainPinY) {
   return (Math.round(mainPinX - (PIN_MAIN_WIDTH / 2))) + ', ' + (mainPinY - PIN_MAIN_HEIGHT);
 };
 
 mapPinMainElement.addEventListener('mousedown', function (evt) {
+  console.log(evt);
   evt.preventDefault();
-  var mapElementLeft = evt.path[3].offsetLeft;
-  var mapPinsElementWidth = evt.path[2].offsetWidth;
-  var mapElementsSum = mapElementLeft + mapPinsElementWidth;
 
-  var limitation = {
-    x: {
-      min: mapElementLeft,
-      max: mapElementsSum,
+  var mainPinSettings = {
+    defaultPosition: {
+      LEFT: '599',
+      TOP: '413',
     },
-    y: {
+    verticalLimits: {
       MIN: '130',
       MAX: '630',
     },
+    size: {
+      inactive: {
+        WIDTH: '199.95',
+        HEIGHT: '199.95',
+      },
+      active: {
+        WIDTH: '65',
+        HEIGHT: '87',
+      },
+    },
   };
-
+  // var mapElementLeft = evt.path[3].offsetLeft;
+  // var mapPinsElementWidth = evt.path[2].offsetWidth;
+  // var mapElementsSum = mapElementLeft + mapPinsElementWidth;
+  //
+  // var limitation = {
+  //   x: {
+  //     min: mapElementLeft,
+  //     max: mapElementsSum,
+  //   },
+  //   y: {
+  //     MIN: '130',
+  //     MAX: '630',
+  //   },
+  // };
+  //
   var startCoordinates = {
     x: evt.clientX,
     y: evt.clientY,
@@ -345,19 +367,19 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
   var onMouseMove = function (moveEvt) {
     moveEvt.preventDefault();
     dragged = true;
-
-    var setMoved = function (moveEvtValue, minCoordinate, maxCoordinate) {
-      if (moveEvtValue < minCoordinate) {
-        moveEvtValue = minCoordinate;
-      } else if (moveEvtValue > maxCoordinate) {
-        moveEvtValue = maxCoordinate;
-      }
-      return moveEvtValue;
-    };
-
-    var limitedX = setMoved(moveEvt.clientX, limitation.x.min, limitation.x.max);
-    var limitedY = setMoved(moveEvt.clientY, limitation.y.MIN, limitation.y.MAX);
-
+  //
+  //   var setMoved = function (moveEvtValue, minCoordinate, maxCoordinate) {
+  //     if (moveEvtValue < minCoordinate) {
+  //       moveEvtValue = minCoordinate;
+  //     } else if (moveEvtValue > maxCoordinate) {
+  //       moveEvtValue = maxCoordinate;
+  //     }
+  //     return moveEvtValue;
+  //   };
+  //
+  //   var limitedX = setMoved(moveEvt.clientX, limitation.x.min, limitation.x.max);
+  //   var limitedY = setMoved(moveEvt.clientY, limitation.y.MIN, limitation.y.MAX);
+  //
     var shift = {
       x: startCoordinates.x - limitedX,
       y: startCoordinates.y - limitedY,
@@ -368,27 +390,28 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
       y: moveEvt.clientY,
     };
 
-    mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
-    mapPinMainElement.style.left = (mapPinMainElement.offsetTop - shift.x) + 'px';
-  };
-
-  var onMouseUp = function (upEvt) {
-    upEvt.preventDefault();
-
-    mapPinsElement.removeEventListener('mousemove', onMouseMove);
-    mapPinsElement.removeEventListener('mouseup', onMouseUp);
-
-    if (dragged) {
-      var onClickPreventInit = function () {
-        upEvt.preventDefault();
-        mapPinMainElement.removeEventListener('mouseup', onClickPreventInit);
-      };
-      mapPinMainElement.addEventListener('mouseup', onClickPreventInit);
-    }
-  };
-  mapPinsElement.addEventListener('mousemove', onMouseMove);
-  mapPinsElement.addEventListener('mouseup', onMouseUp);
+  //   mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
+  //   mapPinMainElement.style.left = (mapPinMainElement.offsetTop - shift.x) + 'px';
+  // };
+  //
+  // var onMouseUp = function (upEvt) {
+  //   upEvt.preventDefault();
+  //
+  //   mapPinsElement.removeEventListener('mousemove', onMouseMove);
+  //   mapPinsElement.removeEventListener('mouseup', onMouseUp);
+  //
+  //   if (dragged) {
+  //     var onClickPreventInit = function () {
+  //       upEvt.preventDefault();
+  //       mapPinMainElement.removeEventListener('mouseup', onClickPreventInit);
+  //     };
+  //     mapPinMainElement.addEventListener('mouseup', onClickPreventInit);
+  //   }
+  // };
+  // mapPinsElement.addEventListener('mousemove', onMouseMove);
+  // mapPinsElement.addEventListener('mouseup', onMouseUp);
 });
+initPage();
 
 mapPinMainElement.addEventListener('click', initPage);
 
@@ -419,7 +442,7 @@ var resetForm = function () {
 var deactivateOfferForm = function () {
   mapElement.classList.add('map--faded');
   offerFormElement.classList.add('ad-form--disabled');
-  offerFormInputAddress.value = locatePinMain(mapPinMainImg.x, mapPinMainImg.y);
+  offerFormInputAddress.value = movePinMain(mainPinSettings.defaultPosition.x, mainPinSettings.defaultPosition.y);
   offerFormButtonSubmit.disabled = true;
   offerFormFieldsets.forEach(function (element) {
     element.disabled = true;
