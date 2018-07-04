@@ -315,9 +315,6 @@ var initPage = function () {
   setTime(offerFormSelectTimeIn.selectedIndex);
 };
 
-var movePinMain = function (mainPinX, mainPinY) {
-  return (Math.round(mainPinX - (PIN_MAIN_WIDTH / 2))) + ', ' + (mainPinY - PIN_MAIN_HEIGHT);
-};
 
 var mainPinSettings = {
   defaultPosition: {
@@ -340,8 +337,20 @@ var mainPinSettings = {
   },
 };
 
+var newCoordinates = {
+  x: '',
+  y: '',
+};
+
+var movePinMain = function (mainPinX, mainPinY) {
+  return (Math.round(mainPinX - (PIN_MAIN_WIDTH / 2))) + ', ' + (mainPinY - PIN_MAIN_HEIGHT);
+};
+
+movePinMain(newCoordinates.x, newCoordinates.y);
+
 mapPinMainElement.addEventListener('mousedown', function (evt) {
   evt.preventDefault();
+
   var startCoordinates = {
     x: evt.clientX,
     y: evt.clientY,
@@ -355,11 +364,6 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
     var shift = {
       x: startCoordinates.x - moveEvt.clientX,
       y: startCoordinates.y - moveEvt.clientY,
-    };
-
-    var newCoordinates = {
-      x: '',
-      y: '',
     };
 
     mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
