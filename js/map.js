@@ -391,19 +391,12 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
   var onMouseUp = function (upEvt) {
     upEvt.preventDefault();
 
-    mapPinsElement.removeEventListener('mousemove', onMouseMove);
-    mapPinsElement.removeEventListener('mouseup', onMouseUp);
-
-    if (dragged) {
-      var onClickPreventInit = function () {
-        upEvt.preventDefault();
-        mapPinMainElement.removeEventListener('mouseup', onClickPreventInit);
-      };
-      mapPinMainElement.addEventListener('mouseup', onClickPreventInit);
-    }
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
   };
-  mapPinsElement.addEventListener('mousemove', onMouseMove);
-  mapPinsElement.addEventListener('mouseup', onMouseUp);
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
 });
 
 mapPinMainElement.addEventListener('click', initPage);
