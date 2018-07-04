@@ -322,11 +322,14 @@ var locatePinMain = function (mainPinX, mainPinY) {
 mapPinMainElement.addEventListener('mousedown', function (evt) {
   console.log(event);
   evt.preventDefault();
+  var mapElementLeft = evt.path[3].offsetLeft;
+  var mapPinsElementWidth = evt.path[2].offsetWidth;
+  var mapElementsSum = mapElementLeft + mapPinsElementWidth;
 
   var limitation = {
     x: {
-      min: mapElement.offsetLeft,
-      max: mapPinsElement.offsetWidth + mapElement.offsetLeft,
+      min: mapElementLeft,
+      max: mapElementsSum,
     },
     y: {
       MIN: '130',
