@@ -301,7 +301,7 @@ var activateOfferForm = function () {
     element.disabled = false;
   });
   offerFormButtonSubmit.disabled = false;
-  offerFormInputAddress.value = movePinMain(mapPinMainImg.x, mapPinMainImg.y);
+  // offerFormInputAddress.value = movePinMain(mapPinMainImg.x, mapPinMainImg.y);
 };
 
 var initPage = function () {
@@ -338,12 +338,19 @@ var mainPinSettings = {
 var movePinMain = function (x, y) {
   mapPinMainElement.style.top = y + 'px';
   mapPinMainElement.style.left = x + 'px';
-  setAddress(calculateAddress(x, y));
+  // setAddress(calculateAddress());
+  // console.log(setAddress(calculateAddress()));
 };
 
-var calculateAddress = function (pinMainX, pinMainY) {
-  return (Math.round(pinMainX - (mainPinSettings.size.active / 2)) + ', ' + (pinMainY - mainPinSettings.size.active));
-};
+// var calculateAddress = function () {
+//   var address = {};
+//   Object.defineProperty(address, 'x' {
+//       return Math.round(x - (mainPinSettings.size.active / 2))
+//   };f
+//   set address(y) {
+//     return Math.round(y - mainPinSettings.size.active)
+//   },
+// };
 
 var setAddress = function (address) {
   offerFormInputAddress.value = address.x + ', ' + address.y;
@@ -369,14 +376,16 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
     };
 
     var newCoordinates = {
+      x: moveEvt.clientX - shift.x,
+      y: moveEvt.clientY - shift.y,
+    };
+
+    startCoordinates = {
       x: moveEvt.clientX,
       y: moveEvt.clientY,
     };
 
     movePinMain(newCoordinates.x, newCoordinates.y);
-
-    mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
-    mapPinMainElement.style.left = (mapPinMainElement.offsetTop - shift.x) + 'px';
   };
 
   var onMouseUp = function (upEvt) {
@@ -426,7 +435,7 @@ var resetForm = function () {
 var deactivateOfferForm = function () {
   mapElement.classList.add('map--faded');
   offerFormElement.classList.add('ad-form--disabled');
-  offerFormInputAddress.value = movePinMain(mainPinSettings.defaultPosition.LEFT, mainPinSettings.defaultPosition.TOP);
+  // offerFormInputAddress.value = movePinMain(mainPinSettings.defaultPosition.LEFT, mainPinSettings.defaultPosition.TOP);
   offerFormButtonSubmit.disabled = true;
   offerFormFieldsets.forEach(function (element) {
     element.disabled = true;
