@@ -364,12 +364,7 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
     y: evt.clientY,
   };
 
-  var dragged = false;
-
   var onMouseMove = function (moveEvt) {
-    moveEvt.preventDefault();
-    dragged = true;
-
     var shift = {
       x: startCoordinates.x - moveEvt.clientX,
       y: startCoordinates.y - moveEvt.clientY,
@@ -388,9 +383,7 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
     movePinMain(newCoordinates.x, newCoordinates.y);
   };
 
-  var onMouseUp = function (upEvt) {
-    upEvt.preventDefault();
-
+  var onMouseUp = function () {
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
   };
