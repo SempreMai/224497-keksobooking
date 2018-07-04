@@ -320,7 +320,6 @@ var locatePinMain = function (mainPinX, mainPinY) {
 };
 
 mapPinMainElement.addEventListener('mousedown', function (evt) {
-  console.log(event);
   evt.preventDefault();
   var mapElementLeft = evt.path[3].offsetLeft;
   var mapPinsElementWidth = evt.path[2].offsetWidth;
