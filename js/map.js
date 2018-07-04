@@ -81,7 +81,7 @@ var PHOTO_ALT = 'Фотография жилья';
 
 var mapElement = document.querySelector('.map');
 var mapPinsElement = document.querySelector('.map__pins');
-var mapPinMainElement = mapPinsElement.querySelector('.map__pin--main');
+var mainPin = mapPinsElement.querySelector('.map__pin--main');
 
 var offerTemplate = document.querySelector('template').content;
 var offerCardElement = offerTemplate.querySelector('.map__card');
@@ -316,28 +316,28 @@ var initPage = function () {
 
 var mainPinSettings = {
   defaultPosition: {
-    LEFT: '599',
-    TOP: '413',
+    LEFT: 599,
+    TOP: 413,
   },
   verticalLimits: {
-    MIN: '130',
-    MAX: '630',
+    MIN: 130,
+    MAX: 630,
   },
   size: {
     inactive: {
-      WIDTH: '199.95',
-      HEIGHT: '199.95',
+      WIDTH: 199.95,
+      HEIGHT: 199.95,
     },
     active: {
-      WIDTH: '65',
-      HEIGHT: '87',
+      WIDTH: 65,
+      HEIGHT: 87,
     },
   },
 };
 
 var movePinMain = function (x, y) {
-  mapPinMainElement.style.top = y + 'px';
-  mapPinMainElement.style.left = x + 'px';
+  mainPin.style.top = y + 'px';
+  mainPin.style.left = x + 'px';
   // setAddress(calculateAddress());
   // console.log(setAddress(calculateAddress()));
 };
@@ -355,43 +355,44 @@ var movePinMain = function (x, y) {
 var setAddress = function (address) {
   offerFormInputAddress.value = address.x + ', ' + address.y;
 };
+// var onMouseDown = function () {
+  mainPin.addEventListener('mousedown', function (evt) {
+    evt.preventDefault();
 
-mapPinMainElement.addEventListener('mousedown', function (evt) {
-  evt.preventDefault();
-
-  var startCoordinates = {
-    x: evt.clientX,
-    y: evt.clientY,
-  };
-
-  var onMouseMove = function (moveEvt) {
-    var shift = {
-      x: startCoordinates.x - moveEvt.clientX,
-      y: startCoordinates.y - moveEvt.clientY,
+    var startCoordinates = {
+      x: evt.clientX,
+      y: evt.clientY,
     };
 
-    var newCoordinates = {
-      x: moveEvt.clientX - shift.x,
-      y: moveEvt.clientY - shift.y,
+    var onMouseMove = function (moveEvt) {
+      var shift = {
+        x: startCoordinates.x - moveEvt.clientX,
+        y: startCoordinates.y - moveEvt.clientY,
+      };
+
+      var newCoordinates = {
+        x: mainPin.offsetLeft - shift.x,
+        y: mainPin.offsetTop - shift.y,
+      };
+
+      startCoordinates = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY,
+      };
+
+      movePinMain(newCoordinates.x, newCoordinates.y);
     };
 
-    startCoordinates = {
-      x: moveEvt.clientX,
-      y: moveEvt.clientY,
+    var onMouseUp = function () {
+      initPage();
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
     };
 
-    movePinMain(newCoordinates.x, newCoordinates.y);
-  };
-
-  var onMouseUp = function () {
-    initPage();
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-  };
-
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup', onMouseUp);
-});
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+// };
 
 offerFormSelectType.addEventListener('change', function (evt) {
   setPrice(evt.target.value);
@@ -436,4 +437,3 @@ offerFormButtonReset.addEventListener('click', function (evt) {
 
 resetForm();
 deactivateOfferForm();
-
