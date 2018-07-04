@@ -384,6 +384,7 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
   };
 
   var onMouseUp = function () {
+    initPage();
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
   };
@@ -391,8 +392,6 @@ mapPinMainElement.addEventListener('mousedown', function (evt) {
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
 });
-
-mapPinMainElement.addEventListener('click', initPage);
 
 offerFormSelectType.addEventListener('change', function (evt) {
   setPrice(evt.target.value);
